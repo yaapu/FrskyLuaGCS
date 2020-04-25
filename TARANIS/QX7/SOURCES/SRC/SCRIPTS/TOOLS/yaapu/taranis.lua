@@ -29,8 +29,9 @@
 -- load and compile of lua files
 --#define LOADSCRIPT
 -- enable mavlite logging to file
+--#define LOGTOFILE
 -- uncomment to force compile of all chunks, comment for release
---#define 
+--#define COMPILE
 -- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
 
 
@@ -56,8 +57,7 @@
 -- enable dev code
 --#define DEV
 -- use radio channels imputs to generate fake telemetry data
---#define 
-  -- cell count
+--#define TESTMODE
 
 
 ---------------------
@@ -150,13 +150,13 @@ frameTypes[29]  = "c"
 -- plane
 frameTypes[1]   = "p"
 frameTypes[16]  = "p"
-frameTypes[19]  = "q"
-frameTypes[20]  = "q"
-frameTypes[21]  = "q"
-frameTypes[22]  = "q"
-frameTypes[23]  = "q"
-frameTypes[24]  = "q"
-frameTypes[25]  = "q"
+frameTypes[19]  = "p"
+frameTypes[20]  = "p"
+frameTypes[21]  = "p"
+frameTypes[22]  = "p"
+frameTypes[23]  = "p"
+frameTypes[24]  = "p"
+frameTypes[25]  = "p"
 frameTypes[28]  = "p"
 -- rover
 frameTypes[10]  = "r"

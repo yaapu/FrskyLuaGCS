@@ -417,8 +417,10 @@ local globalParams = {}
 local tuning = {}
 local tuningPages = {}
 
-local basePath = "/SCRIPTS/YAAPU/"
-local libBasePath = basePath.."LIB/"
+local basePath = "/SCRIPTS/TOOLS/yaapu/"
+local libBasePath = basePath
+--local basePath = "/SCRIPTS/YAAPU/"
+--local libBasePath = basePath.."LIB/"
 
 local bitmaps = {}
 local blinktime = getTime()

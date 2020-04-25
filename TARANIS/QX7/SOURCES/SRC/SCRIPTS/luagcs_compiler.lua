@@ -116,8 +116,8 @@ local libBasePath = basePath
 -- check if HORUS
 if LCD_W > 212 then -- HORUS
   cfgPath = "/SCRIPTS/YAAPU/CFG/"
-  basePath = "/SCRIPTS/YAAPU/"
-  libBasePath = basePath.."LIB/"
+  --basePath = "/SCRIPTS/YAAPU/"
+  --libBasePath = basePath.."LIB/"
 end
 -----------------------------
 -- clears the loaded table 
