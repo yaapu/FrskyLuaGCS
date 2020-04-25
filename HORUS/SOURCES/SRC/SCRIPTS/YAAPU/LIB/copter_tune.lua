@@ -28,9 +28,12 @@
 ---------------------
 -- load and compile of lua files
 --#define LOADSCRIPT
+-- enable mavlite logging to file
+--#define LOGTOFILE
 -- uncomment to force compile of all chunks, comment for release
 --#define COMPILE
 -- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
+
 
 ---------------------
 -- MAVLITE CONFIG
@@ -42,9 +45,12 @@
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
+--#define 
 -- cache params pages
+--#define 
 -- enable full telemetry debug
---#define TELEMETRY_DEBUG
+--#define DEBUG_SPORT
+--#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
@@ -53,11 +59,14 @@
 -- use radio channels imputs to generate fake telemetry data
 --#define TESTMODE
 
+
 ---------------------
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
 -- calc and show telemetry process rate
+
+
 
 
 
@@ -171,10 +180,16 @@ COMBO
   {"WPNAV_SPEED_UP"       , 10, 1000, 50            , x=363,y=32+164,label="Spd Up"},
   {"WPNAV_SPEED_DN"       , 10, 500, 10             , x=363,y=32+180,label="Spd Dn"},
   {"LOIT_SPEED"           , 20, 2000, 50            , x=363,y=32+196,label="Loiter"},
-  
   -- row 4
   {"AUTOTUNE_AXES"        , {"All","Roll","Ptch","Yaw","R+P","R+Y","P+Y"}, {7,1,2,4,3,5,6}, x=123,y=32+184,label="Axis"},
   {"AUTOTUNE_AGGR"        , 0.05, 0.1, 0.01         , x=123,y=32+200,label="Aggr"},
 }
 
-return {list=parameters,description=description,panel=panel,boxes=boxes,labelWidth=labelWidth,columnWidth=columnWidth}
+return {
+  list=parameters,
+  description=description,
+  boxes=boxes,
+  labelWidth=labelWidth,
+  columnWidth=columnWidth,
+  listType=2 -- tuning panel
+}

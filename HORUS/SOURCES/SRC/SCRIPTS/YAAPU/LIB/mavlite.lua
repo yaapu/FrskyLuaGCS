@@ -1,11 +1,8 @@
 
 
--- MAVLITE_MAX_PAYLOAD_LEN= 1 + 2 + 7x4
+--#define MAVLITE_BUFFER_SIZE 10
+--#define SPORT_BUFFER_SIZE 20
 
-
-
-
-local utils = ...
 
 local function clearTable(t)
   if type(t)=="table" then
@@ -31,7 +28,7 @@ cbuffer_lib.init = function(cbuf)
   cbuf.buffer = {}
   cbuf.head = 0
   cbuf.tail = 0
-  cbuf.max = 50
+  cbuf.max = 7
   cbuf.full = false
   collectgarbage()
   collectgarbage()
@@ -452,13 +449,14 @@ end
 local function process_sport_tx_queue(utils)
   -- keep an active heartbeat by sending 1 empty frame
   -- this keeps the polling for 0x0D tight
+  --[[
   if cbuffer_lib.empty(sport_tx_buffer) == true then
-    sportTelemetryPush(0x0D, 0x0, 0x0, 0x0)
+    sportTelemetryPush(SPORT_UPLINK_SENSOR_ID, 0x0, 0x0, 0x0)
     return
   end
-  -- queue is not empty, send up to 10 frames
+  --]]  -- queue is not empty, send up to 10 frames
   local count = 0
-  while cbuffer_lib.empty(sport_tx_buffer) == false and count < 10
+  while cbuffer_lib.empty(sport_tx_buffer) == false and count < 3
   do
     local packet = cbuffer_lib.peek(sport_tx_buffer)
     if sportTelemetryPush(0x0D, 0x30, packet.data_id, packet.value) then
@@ -468,6 +466,16 @@ local function process_sport_tx_queue(utils)
   end
 end
 
+--[[
+local function process_sport_tx_queue(utils)
+  if cbuffer_lib.empty(sport_tx_buffer) == false then
+    local packet = cbuffer_lib.peek(sport_tx_buffer)
+    if sportTelemetryPush(SPORT_UPLINK_SENSOR_ID, SPORT_UPLINK_FRAME, packet.data_id, packet.value) then
+      cbuffer_lib.pop(sport_tx_buffer)
+    end
+  end
+end
+--]]
 local function msg_get_size(msg)
   return 1 + math.ceil((msg.len-2)/5)
 end
@@ -517,54 +525,7 @@ local function msg_send(msg,utils)
   return true
 end
 
-local function msg_send_test()
-  -- cannot send if last message still pending
-  if cbuffer_lib.empty(sport_tx_buffer) == false then
-    return false
-  end
-  
-  local packet1 = {
-    data_id = 0x0000,
-    value = 0x00000000
-  }
 
-  packet1.data_id = bit32.replace(packet1.data_id,0x00,8,8) -- seq
-  packet1.data_id = bit32.replace(packet1.data_id,0x08,0,8) -- payload len
-  packet1.value = bit32.replace(packet1.value,0xFF,24,8) -- msgid
-  packet1.value = bit32.replace(packet1.value,0x00,16,8) -- pay[0]
-  packet1.value = bit32.replace(packet1.value,0x00,8,8) -- pay[1]
-  packet1.value = bit32.replace(packet1.value,0x00,0,8) -- pay[2]
-  
-  cbuffer_lib.push(sport_tx_buffer,packet1)
-  
-  
-  local packet2 = {
-    data_id = 0x0000,
-    value = 0x00000000
-  }
-  
-  packet2.data_id = bit32.replace(packet2.data_id,0x01,8,8) -- seq
-  packet2.data_id = bit32.replace(packet2.data_id,0x00,0,8) -- pay[4]
-  packet2.value = bit32.replace(packet2.value,string.byte("A"),24,8) -- pay[5]
-  packet2.value = bit32.replace(packet2.value,string.byte("L"),16,8) -- pay[6]
-  packet2.value = bit32.replace(packet2.value,string.byte("E"),8,8) -- pay[7]
-  packet2.value = bit32.replace(packet2.value,string.byte("X"),0,8) -- pay[8]
-
-  cbuffer_lib.push(sport_tx_buffer,packet2)
-
-  local packet3 = {
-    data_id = 0x0000,
-    value = 0x00000000
-  }
-  
-  packet3.data_id = bit32.replace(packet3.data_id,0x02,8,8) -- seq
-  packet3.data_id = bit32.replace(packet3.data_id,0xFF,0,8) -- CRC
-  packet3.value = 0x00000000
-
-  cbuffer_lib.push(sport_tx_buffer,packet3)
-  
-  return true
-end
 local function clear_tx_queue()
   cbuffer_lib.init(sport_tx_buffer)
 end
@@ -575,7 +536,6 @@ return {
   
   msg_send=msg_send,
   msg_send_ready=msg_send_ready,
-  msg_send_test=msg_send_test,
   
   msg_get_string=msg_get_string,
   msg_get_float=msg_get_float,

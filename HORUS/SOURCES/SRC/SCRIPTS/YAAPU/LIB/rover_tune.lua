@@ -28,9 +28,12 @@
 ---------------------
 -- load and compile of lua files
 --#define LOADSCRIPT
+-- enable mavlite logging to file
+--#define LOGTOFILE
 -- uncomment to force compile of all chunks, comment for release
 --#define COMPILE
 -- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
+
 
 ---------------------
 -- MAVLITE CONFIG
@@ -42,9 +45,12 @@
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
+--#define 
 -- cache params pages
+--#define 
 -- enable full telemetry debug
---#define TELEMETRY_DEBUG
+--#define DEBUG_SPORT
+--#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
@@ -53,11 +59,14 @@
 -- use radio channels imputs to generate fake telemetry data
 --#define TESTMODE
 
+
 ---------------------
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
 -- calc and show telemetry process rate
+
+
 
 
 
@@ -127,16 +136,13 @@ COMBO
   {"ATC_SPEED_IMAX"       , 0, 1, 0.01          , x=165,y=32+50,label="IMAX"},
   {"ATC_ACCEL_MAX"        , 0.0, 10.0, 0.1      , x=165,y=32+64,label="Accel Max"},
   {"ATC_BRAKE"            , {"Disable","Enable"}, {0,1}, x=165,y=32+80,label="Brake"},
-  
   {"WP_RADIUS"            , 0.0, 100.0, 0.1     , x=325,y=32+2,label="WPRad m"},
   {"WP_OVERSHOOT"         , 0.0, 10, 0.1        , x=325,y=32+18,label="WP ov.sh m"},
   {"TURN_MAX_G"           , 0.1, 10, 0.01       , x=325,y=32+34,label="Turn Dist"},
   {"NAVL1_PERIOD"         , 0, 60.0, 1          , x=325,y=32+50,label="Nav Perio"},
   {"NAVL1_DAMPING"        , 0.6, 1, 0.05        , x=325,y=32+64,label="Nav Damp"},
-  
   --row 2
   {"TURN_RADIUS"          , 0, 10, 0.1          , x=5,y=32+126,label="Turn Speed"},
-
   {"MOT_PWM_TYPE"         , {"Norm","OS","OS125","BrRelay","BrBip","DS150","DS300","DS600","DS1200"}, {0,1,2,3,4,5,6,7,8}, x=165,y=32+126,label="Motor Type"},
   {"CRUISE_SPEED"         , 0, 100, 0.1         , x=165,y=32+142,label="Cruise Spd"},
   {"CRUISE_THROTTLE"      , 0, 100, 1           , x=165,y=32+158,label="Cruise Thr"},

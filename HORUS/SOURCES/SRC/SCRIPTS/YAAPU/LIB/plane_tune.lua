@@ -28,9 +28,12 @@
 ---------------------
 -- load and compile of lua files
 --#define LOADSCRIPT
+-- enable mavlite logging to file
+--#define LOGTOFILE
 -- uncomment to force compile of all chunks, comment for release
 --#define COMPILE
 -- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
+
 
 ---------------------
 -- MAVLITE CONFIG
@@ -42,9 +45,12 @@
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
+--#define 
 -- cache params pages
+--#define 
 -- enable full telemetry debug
---#define TELEMETRY_DEBUG
+--#define DEBUG_SPORT
+--#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
@@ -53,11 +59,14 @@
 -- use radio channels imputs to generate fake telemetry data
 --#define TESTMODE
 
+
 ---------------------
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
 -- calc and show telemetry process rate
+
+
 
 
 
@@ -155,7 +164,6 @@ COMBO
   {"ARSPD_FBW_MIN"  , 5, 100, 1           , x=165,y=32+152,label="FBW Min"},
   {"ARSPD_FBW_MAX"  , 5, 100, 1           , x=165,y=32+167,label="FBW Max"},
   {"ARSPD_RATIO"    , 0, 100, 0.1         , x=165,y=32+183,label="Ratio"},
-
   {"LIM_ROLL_CD"    , 0, 90, 1            , x=325,y=32+167,label="Bank Max",mult=100},
   {"LIM_PITCH_MIN"  , -90, 0, 1           , x=325,y=32+183,label="Pitch Min",mult=100},
   {"LIM_PITCH_MAX"  , 0, 90, 1            , x=325,y=32+199,label="Pitch Max",mult=100},
