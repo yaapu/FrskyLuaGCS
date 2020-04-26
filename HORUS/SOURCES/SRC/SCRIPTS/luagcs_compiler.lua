@@ -116,8 +116,6 @@ local libBasePath = basePath
 -- check if 
 if LCD_W > 212 then -- 
   cfgPath = "/SCRIPTS/YAAPU/CFG/"
-  --basePath = "/SCRIPTS/YAAPU/"
-  --libBasePath = basePath.."LIB/"
 end
 -----------------------------
 -- clears the loaded table 
@@ -208,38 +206,33 @@ local function getModelFilename()
   return cfgPath .. getModelName()
 end
 
-local function createEmptyFiles()
-  local pf = assert(io.open(getModelFilename().."_params_1.lua","a+"))
+local function createEmptyFiles(pageType)
+  local pf = assert(io.open(getModelFilename().."_"..pageType.."_1.lua","a+"))
   if pf ~= nil then
     io.close(pf)
   end
   
-  pf = assert(io.open(getModelFilename().."_commands_1.lua","a+"))
+  pf = assert(io.open(basePath.."qplane_"..pageType.."_1.lua","a+"))
   if pf ~= nil then
     io.close(pf)
   end
   
-  pf = assert(io.open(cfgPath.."qplane_params_1.lua","a+"))
+  pf = assert(io.open(basePath.."plane_"..pageType.."_1.lua","a+"))
   if pf ~= nil then
     io.close(pf)
   end
   
-  pf = assert(io.open(cfgPath.."plane_params_1.lua","a+"))
+  pf = assert(io.open(basePath.."copter_"..pageType.."_1.lua","a+"))
   if pf ~= nil then
     io.close(pf)
   end
   
-  pf = assert(io.open(cfgPath.."copter_params_1.lua","a+"))
+  pf = assert(io.open(basePath.."heli_"..pageType.."_1.lua","a+"))
   if pf ~= nil then
     io.close(pf)
   end
   
-  pf = assert(io.open(cfgPath.."heli_params_1.lua","a+"))
-  if pf ~= nil then
-    io.close(pf)
-  end
-  
-  pf = assert(io.open(cfgPath.."rover_params_1.lua","a+"))
+  pf = assert(io.open(basePath.."rover_"..pageType.."_1.lua","a+"))
   if pf ~= nil then
     io.close(pf)
   end
@@ -275,7 +268,7 @@ local function compileFramePages(pageType)
   for f=1,#frames do
     local found = 1
     while found > 0 do
-      local page = string.format(cfgPath.."%s_%s_%d.lua", frames[f], pageType, found)
+      local page = string.format(libBasePath.."%s_%s_%d.lua", frames[f], pageType, found)
       local file = io.open(page,"r")
       if file == nil then
         break
@@ -351,7 +344,8 @@ local function init()
   compileFramePages("commands");
   compileModelPages("params")
   compileModelPages("commands")
-  createEmptyFiles()
+  createEmptyFiles("params")
+  createEmptyFiles("commands")
 end
 
 --------------------------------------------------------------------------------

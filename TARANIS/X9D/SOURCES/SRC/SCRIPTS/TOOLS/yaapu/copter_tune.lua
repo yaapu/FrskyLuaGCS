@@ -124,7 +124,6 @@ COMBO
   {"ATC_ANG_PIT_P"        , 0, 12.0, 0.05           , x=123,y=32+5,label="P"},
   {"ATC_ANG_YAW_P"        , 0, 12.0, 0.05           , x=243,y=32+5,label="P"},
   {"PSC_POSXY_P"          , 0.5, 2, 0.1             , x=363,y=32+5,label="P"},
-  
   -- row 2
   {"ATC_RAT_RLL_P"        , 0.01, 0.5, 0.005        , x=3,y=32+43,label="P"},
   {"ATC_RAT_RLL_I"        , 0.01, 2.0, 0.01         , x=3,y=32+59,label="I"},

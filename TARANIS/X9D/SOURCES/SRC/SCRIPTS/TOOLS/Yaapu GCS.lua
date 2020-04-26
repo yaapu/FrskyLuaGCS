@@ -816,43 +816,7 @@ local last_frame_id
 local last_data_id
 local last_value
 
---[[
-local last_frame_id
-local last_data_id
-local last_value
-
-local function background()
-  for i=1,TELEMETRY_LOOPS
-  do
-    local sensor_id,frame_id,data_id,value = sportTelemetryPop()
-    
-    if sensor_id  ~= nil then
-      
-      if last_frame_id ~= frame_id or last_data_id ~= data_id or last_value ~= value then
-        last_frame_id = frame_id
-        last_data_id = data_id
-        last_value = value
-        
-        sportPacket.sensor_id = sensor_id
-        sportPacket.frame_id = frame_id
-        sportPacket.data_id = data_id
-        sportPacket.value = value
-        
-        if sportPacket.frame_id == SPORT_DATA_FRAME then
-          status.noTelemetryData = 0
-          -- no telemetry dialog only shown once
-          status.hideNoTelemetry = true
-          
-          processTelemetry(sportPacket)
-        elseif sportPacket.frame_id == SPORT_DOWNLINK_FRAME then
-          utils.pushMessage(7,string.format("RX %02X:%02X:%04X:%08X",sportPacket.sensor_id, sportPacket.frame_id, sportPacket.data_id, sportPacket.value))
-          processSportData(sportPacket)
-        end
-      end
-    end  
-  end
-  
---]]local last_pkt = ""
+local last_pkt = ""
 local last_mav_pkt = ""
 
 local function background()
@@ -935,12 +899,12 @@ local function background()
 end
 
 
-local function initFrameSpecificPages(frameName)
+local function initFramePages(frameName,pages,pageType)
   -- look for frame specific pages
   local found = 1
   
   while found > 0 do
-    local page = string.format("/MODELS/yaapu/%s_params_%d.lua",frameName,found)
+    local page = libBasePath..string.format("%s_%s_%d.lua",frameName,pageType,found)
     local file = io.open(page,"r")
     
     if file == nil then
@@ -951,8 +915,8 @@ local function initFrameSpecificPages(frameName)
     if #str == 0 then
       break
     end
-    paramsPages[#paramsPages+1] = page
-    utils.pushMessage(7,paramsPages[#paramsPages])
+    pages[#pages+1] = page
+    utils.pushMessage(7,pages[#pages])
     found=found+1
   end
   collectgarbage()
@@ -1012,7 +976,13 @@ local function loadFrameSpecificPages()
       maxmem = 0
       
       if searchFrameParams == true then
-        initFrameSpecificPages(frame)
+        initFramePages(frame, paramsPages,"params")
+        initFramePages(frame, commandsPages, "commands")
+        -- qplane loads plane pages too!
+        if frame == "qplane" then
+          initFramePages("plane", paramsPages, "params")
+          initFramePages("plane", commandsPages, "commands")
+        end
         searchFrameParams = false
       end
     end
@@ -1024,32 +994,17 @@ local function getModelFilename()
   return "/MODELS/yaapu/" .. string.lower(string.gsub(info.name, "[%c%p%s%z]", ""))
 end
 
-local function createEmptyModelFiles()
-  -- create the default model parameters file only if missing
-  local pf = assert(io.open(getModelFilename().."_params_1.lua","a+"))
-  if pf ~= nil then
-    io.close(pf)
-  end
-  
-  local pf = assert(io.open(getModelFilename().."_commands_1.lua","a+"))
-  if pf ~= nil then
-    io.close(pf)
-  end
-end
-
-local function initParamsPages()
+local function initModelPages(pageType, pages)
   -- look for global frametype specific
-  paramsPages[#paramsPages+1] = libBasePath.."default_params.lua"
-  utils.pushMessage(7,paramsPages[#paramsPages])
+  pages[#pages+1] = libBasePath.."default_"..pageType..".lua"
+  utils.pushMessage(7,pages[#pages])
   
   -- look for model specific pages
   local found = 1
   
   while found > 0 do
-    local page = string.format("%s_params_%d.lua",getModelFilename(),found)
-    
+    local page = string.format("%s_%s_%d.lua", getModelFilename(), pageType, found)
     local file = io.open(page,"r")
-    
     if file == nil then
       break
     end
@@ -1058,8 +1013,8 @@ local function initParamsPages()
     if #str == 0 then
       break
     end
-    paramsPages[#paramsPages+1] = page
-    utils.pushMessage(7,paramsPages[#paramsPages])
+    pages[#pages+1] = page
+    utils.pushMessage(7,pages[#pages])
     found=found+1
   end
   
@@ -1088,36 +1043,6 @@ local function loadParamsPages()
   collectgarbage()
   collectgarbage()
   maxmem = 0
-end
-
-local function initCommandsPages()
-  -- look for global frametype specific
-  commandsPages[#commandsPages+1] = libBasePath.."default_commands.lua"
-  utils.pushMessage(7,commandsPages[#commandsPages])
-  
-  -- look for model specific command pages
-  local found = 1
-  
-  while found > 0 do
-    local page = string.format("%s_commands_%d.lua",getModelFilename(),found)
-    
-    local file = io.open(page,"r")
-    
-    if file == nil then
-      break
-    end
-    local str = io.read(file,10)
-    io.close(file)
-    if #str == 0 then
-      break
-    end
-    commandsPages[#commandsPages+1] = page
-    utils.pushMessage(7,commandsPages[#commandsPages])
-    found=found+1
-  end
-  
-  collectgarbage()
-  collectgarbage()
 end
 
 local function loadCommandsPages()
@@ -1184,7 +1109,6 @@ local function run(event)
         if page > (math.max(1,#commandsPages) + math.max(1,#paramsPages) + #tuningPages) then
           page = 1
         end
-        
       end
       
       if page <= #tuningPages or #tuningPages == 0 then --from 0 to #tuningPages ==> display tuning pages
@@ -1234,16 +1158,12 @@ local function run(event)
 end
 
 local function init()
-  -- if missing create a template file for parameters and commands
-  createEmptyModelFiles()
   
   -- load mavlite library
   mavLib = utils.doLibrary("mavlite")  
   drawLib = utils.doLibrary("taranis")
-  -- look for general and model specific param pages
-  initParamsPages()
-  -- look for general and model specific command pages
-  initCommandsPages()
+  initModelPages("params",paramsPages)
+  initModelPages("commands",commandsPages)
     
   
   

@@ -20,11 +20,11 @@ params
 1: Autopilot	0: Do nothing for autopilot, 1: Reboot autopilot, 2: Shutdown autopilot, 3: Reboot autopilot and keep it in the bootloader until upgraded.	min:0 max:3 increment:1
 2: Companion	0: Do nothing for onboard computer, 1: Reboot onboard computer, 2: Shutdown onboard computer, 3: Reboot onboard computer and keep it in the bootloader until upgraded.
 --]]local commands = {
-  {"CALIBRATE"  , {"Ground Pressure","Accelerometer","Board Level"}, { {0,0,1}, {0,0,0,0,1}, {0,0,0,0,2} }, cmd_id=241, value=1 },
+  --{"CALIBRATE"  , {"Ground Pressure","Accelerometer","Board Level"}, { {0,0,1}, {0,0,0,0,1}, {0,0,0,0,2} }, cmd_id=241, value=1 },
+  {"CALIBRATE"  , {"Ground Pressure"}, { {0,0,1} }, cmd_id=241, value=1 },
   {"FENCE ENABLE"  , {"Disable","Enable","Floor Only"}, { {0}, {1}, {2} }, cmd_id=207, value=1 },
   {"REBOOT"  , {"Autopilot","Onboard Computer"}, { {1,0}, {0,1} }, cmd_id=246, value=1 },
-  {"MODE"  , {"CIRCLE", "ACRO", "FBWB", "TAKEOFF"}, { {1}, {4}, {6}, {13} }, cmd_id=176, value=1},
-  --{"COMPASS"  , {"Start Cal"}, { {0,0,1,0,0} }, cmd_id=24, value=1 },
+  --{"COMPASS"  , {"Start Cal"}, { {0,0,1,0,0} }, cmd_id=42424, value=1 },
 }
 
 return {
