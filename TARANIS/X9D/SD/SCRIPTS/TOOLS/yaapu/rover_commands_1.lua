@@ -22,6 +22,9 @@ local description = "Rover Commands"
       INITIALISING = 16
   };
 --]]local commands = {
+  {"CALIBRATE"  , {"Ground Pressure"}, { {0,0,1} }, cmd_id=241, value=1 },
+  {"FENCE ENABLE"  , {"Disable","Enable","Floor Only"}, { {0}, {1}, {2} }, cmd_id=207, value=1 },
+  {"REBOOT"  , {"Autopilot","Onboard Computer"}, { {1,0}, {0,1} }, cmd_id=246, value=1 },
   {"MODE"  ,
     { "MANUAL","ACRO", "STEERING","HOLD","LOITER", "FOLLOW","SIMPLE","AUTO","RTL","SMART_RTL","GUIDED","INITIALISING",}, 
     { {0}, {1}, {3}, {4}, {5}, {6}, {7}, {10}, {11}, {12}, {15}, {16}, }, 

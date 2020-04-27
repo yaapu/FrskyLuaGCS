@@ -270,6 +270,7 @@ local tuningPages = {}
 
 local basePath = "/SCRIPTS/TOOLS/yaapu/"
 local libBasePath = basePath
+local cfgPath = "/MODELS/yaapu/"
 
 local bitmaps = {}
 local blinktime = getTime()
@@ -916,21 +917,26 @@ local function background()
   collectgarbage()
 end
 
+local function isFileEmpty(filename)
+  local file = io.open(filename,"r")
+  if file == nil then
+    return true
+  end
+  local str = io.read(file,10)
+  io.close(file)
+  print("luaDebug: ", filename," #str=",#str)
+  if #str < 10 then
+    return true
+  end
+  return false
+end
 
-local function initFramePages(frameName,pages,pageType)
+local function searchPages(filepath,prefix,pages,pageType)
   -- look for frame specific pages
   local found = 1
-  
   while found > 0 do
-    local page = libBasePath..string.format("%s_%s_%d.lua",frameName,pageType,found)
-    local file = io.open(page,"r")
-    
-    if file == nil then
-      break
-    end
-    local str = io.read(file,10)
-    io.close(file)
-    if #str == 0 then
+    local page = string.format("%s%s_%s_%d.lua",filepath, prefix, pageType, found)
+    if isFileEmpty(page) then
       break
     end
     pages[#pages+1] = page
@@ -994,12 +1000,12 @@ local function loadFrameSpecificPages()
       maxmem = 0
       
       if searchFrameParams == true then
-        initFramePages(frame, paramsPages,"params")
-        initFramePages(frame, commandsPages, "commands")
+        searchPages(libBasePath, frame, paramsPages,"params")
+        searchPages(libBasePath, frame, commandsPages, "commands")
         -- qplane loads plane pages too!
         if frame == "qplane" then
-          initFramePages("plane", paramsPages, "params")
-          initFramePages("plane", commandsPages, "commands")
+          searchPages(libBasePath, "plane", paramsPages, "params")
+          searchPages(libBasePath, "plane", commandsPages, "commands")
         end
         searchFrameParams = false
       end
@@ -1009,35 +1015,17 @@ end
 
 local function getModelFilename()
   local info = model.getInfo()
-  return "/MODELS/yaapu/" .. string.lower(string.gsub(info.name, "[%c%p%s%z]", ""))
+  return string.lower(string.gsub(info.name, "[%c%p%s%z]", ""))
 end
 
-local function initModelPages(pageType, pages)
+local function searchDefaultPages(pageType,pages)
   -- look for global frametype specific
+  local page = libBasePath.."default_"..pageType..".lua"
+  if isFileEmpty(page) then
+    return
+  end
   pages[#pages+1] = libBasePath.."default_"..pageType..".lua"
   utils.pushMessage(7,pages[#pages])
-  
-  -- look for model specific pages
-  local found = 1
-  
-  while found > 0 do
-    local page = string.format("%s_%s_%d.lua", getModelFilename(), pageType, found)
-    local file = io.open(page,"r")
-    if file == nil then
-      break
-    end
-    local str = io.read(file,10)
-    io.close(file)
-    if #str == 0 then
-      break
-    end
-    pages[#pages+1] = page
-    utils.pushMessage(7,pages[#pages])
-    found=found+1
-  end
-  
-  collectgarbage()
-  collectgarbage()
 end
 
 local function loadParamsPages()
@@ -1180,8 +1168,10 @@ local function init()
   -- load mavlite library
   mavLib = utils.doLibrary("mavlite")  
   drawLib = utils.doLibrary("taranis")
-  initModelPages("params",paramsPages)
-  initModelPages("commands",commandsPages)
+  searchDefaultPages("params",paramsPages)
+  searchDefaultPages("commands",commandsPages)
+  searchPages(cfgPath, getModelFilename(), "params", paramsPages)
+  searchPages(cfgPath, getModelFilename(), "commands", commandsPages)
     
   
   
