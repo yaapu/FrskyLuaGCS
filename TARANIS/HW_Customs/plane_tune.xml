@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfMavlinkParameter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MavlinkParameter>
+    <valueList />
+    <min>0.1</min>
+    <max>4.0</max>
+    <group>RLL2SRV_</group>
+    <name>RLL2SRV_P</name>
+    <range>0.1 4.0</range>
+    <increment>0.1</increment>
+    <description>Proportional gain from roll angle demands to ailerons. Higher values allow more servo response but can cause oscillations. Automatically set and adjusted by AUTOTUNE mode.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>1.0</max>
+    <group>RLL2SRV_</group>
+    <name>RLL2SRV_I</name>
+    <range>0 1.0</range>
+    <increment>0.05</increment>
+    <description>Integrator gain from long-term roll angle offsets to ailerons. Higher values "trim" out offsets faster but can cause oscillations. Automatically set and adjusted by AUTOTUNE mode.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>0.2</max>
+    <group>RLL2SRV_</group>
+    <name>RLL2SRV_D</name>
+    <range>0 0.2</range>
+    <increment>0.01</increment>
+    <description>Damping gain from roll acceleration to ailerons. Higher values reduce rolling in turbulence, but can cause oscillations. Automatically set and adjusted by AUTOTUNE mode.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0.1</min>
+    <max>3.0</max>
+    <group>PTCH2SRV_</group>
+    <name>PTCH2SRV_P</name>
+    <range>0.1 3.0</range>
+    <increment>0.1</increment>
+    <description>Proportional gain from pitch angle demands to elevator. Higher values allow more servo response but can cause oscillations. Automatically set and adjusted by AUTOTUNE mode.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>0.5</max>
+    <group>PTCH2SRV_</group>
+    <name>PTCH2SRV_I</name>
+    <range>0 0.5</range>
+    <increment>0.05</increment>
+    <description>Integrator gain from long-term pitch angle offsets to elevator. Higher values "trim" out offsets faster but can cause oscillations. Automatically set and adjusted by AUTOTUNE mode.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>0.2</max>
+    <group>PTCH2SRV_</group>
+    <name>PTCH2SRV_D</name>
+    <range>0 0.2</range>
+    <increment>0.01</increment>
+    <description>Damping gain from pitch acceleration to elevator. Higher values reduce pitching in turbulence, but can cause oscillations. Automatically set and adjusted by AUTOTUNE mode.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>4</max>
+    <group>YAW2SRV_</group>
+    <name>YAW2SRV_SLIP</name>
+    <range>0 4</range>
+    <increment>0.25</increment>
+    <description>Gain from lateral acceleration to demanded yaw rate for aircraft with enough fuselage area to detect lateral acceleration and sideslips. Do not enable for flying wings and gliders. Actively coordinates flight more than just yaw damping. Set after YAW2SRV_DAMP and YAW2SRV_INT are tuned.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>2</max>
+    <group>YAW2SRV_</group>
+    <name>YAW2SRV_INT</name>
+    <range>0 2</range>
+    <increment>0.25</increment>
+    <description>Integral gain from lateral acceleration error. Effectively trims rudder to eliminate long-term sideslip.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>2</max>
+    <group>YAW2SRV_</group>
+    <name>YAW2SRV_DAMP</name>
+    <range>0 2</range>
+    <increment>0.25</increment>
+    <description>Gain from yaw rate to rudder. Most effective at yaw damping and should be tuned after KFF_RDDRMIX. Also disables YAW2SRV_INT if set to 0.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>None</_label>
+        <code>0</code>
+        <label>None</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>RateRollPI</_label>
+        <code>1</code>
+        <label>RateRollPI</label>
+      </MPValue>
+      <MPValue>
+        <_code>2</_code>
+        <_label>RateRollP</_label>
+        <code>2</code>
+        <label>RateRollP</label>
+      </MPValue>
+      <MPValue>
+        <_code>3</_code>
+        <_label>RateRollI</_label>
+        <code>3</code>
+        <label>RateRollI</label>
+      </MPValue>
+      <MPValue>
+        <_code>4</_code>
+        <_label>RateRollD</_label>
+        <code>4</code>
+        <label>RateRollD</label>
+      </MPValue>
+      <MPValue>
+        <_code>5</_code>
+        <_label>RatePitchPI</_label>
+        <code>5</code>
+        <label>RatePitchPI</label>
+      </MPValue>
+      <MPValue>
+        <_code>6</_code>
+        <_label>RatePitchP</_label>
+        <code>6</code>
+        <label>RatePitchP</label>
+      </MPValue>
+      <MPValue>
+        <_code>7</_code>
+        <_label>RatePitchI</_label>
+        <code>7</code>
+        <label>RatePitchI</label>
+      </MPValue>
+      <MPValue>
+        <_code>8</_code>
+        <_label>RatePitchD</_label>
+        <code>8</code>
+        <label>RatePitchD</label>
+      </MPValue>
+      <MPValue>
+        <_code>9</_code>
+        <_label>RateYawPI</_label>
+        <code>9</code>
+        <label>RateYawPI</label>
+      </MPValue>
+      <MPValue>
+        <_code>10</_code>
+        <_label>RateYawP</_label>
+        <code>10</code>
+        <label>RateYawP</label>
+      </MPValue>
+      <MPValue>
+        <_code>11</_code>
+        <_label>RateYawI</_label>
+        <code>11</code>
+        <label>RateYawI</label>
+      </MPValue>
+      <MPValue>
+        <_code>12</_code>
+        <_label>RateYawD</_label>
+        <code>12</code>
+        <label>RateYawD</label>
+      </MPValue>
+      <MPValue>
+        <_code>13</_code>
+        <_label>AngleRollP</_label>
+        <code>13</code>
+        <label>AngleRollP</label>
+      </MPValue>
+      <MPValue>
+        <_code>14</_code>
+        <_label>AnglePitchP</_label>
+        <code>14</code>
+        <label>AnglePitchP</label>
+      </MPValue>
+      <MPValue>
+        <_code>15</_code>
+        <_label>AngleYawP</_label>
+        <code>15</code>
+        <label>AngleYawP</label>
+      </MPValue>
+      <MPValue>
+        <_code>16</_code>
+        <_label>PosXYP</_label>
+        <code>16</code>
+        <label>PosXYP</label>
+      </MPValue>
+      <MPValue>
+        <_code>17</_code>
+        <_label>PosZP</_label>
+        <code>17</code>
+        <label>PosZP</label>
+      </MPValue>
+      <MPValue>
+        <_code>18</_code>
+        <_label>VelXYP</_label>
+        <code>18</code>
+        <label>VelXYP</label>
+      </MPValue>
+      <MPValue>
+        <_code>19</_code>
+        <_label>VelXYI</_label>
+        <code>19</code>
+        <label>VelXYI</label>
+      </MPValue>
+      <MPValue>
+        <_code>20</_code>
+        <_label>VelZP</_label>
+        <code>20</code>
+        <label>VelZP</label>
+      </MPValue>
+      <MPValue>
+        <_code>21</_code>
+        <_label>AccelZP</_label>
+        <code>21</code>
+        <label>AccelZP</label>
+      </MPValue>
+      <MPValue>
+        <_code>22</_code>
+        <_label>AccelZI</_label>
+        <code>22</code>
+        <label>AccelZI</label>
+      </MPValue>
+      <MPValue>
+        <_code>23</_code>
+        <_label>AccelZD</_label>
+        <code>23</code>
+        <label>AccelZD</label>
+      </MPValue>
+      <MPValue>
+        <_code>50</_code>
+        <_label>FixedWingRollP</_label>
+        <code>50</code>
+        <label>FixedWingRollP</label>
+      </MPValue>
+      <MPValue>
+        <_code>51</_code>
+        <_label>FixedWingRollI</_label>
+        <code>51</code>
+        <label>FixedWingRollI</label>
+      </MPValue>
+      <MPValue>
+        <_code>52</_code>
+        <_label>FixedWingRollD</_label>
+        <code>52</code>
+        <label>FixedWingRollD</label>
+      </MPValue>
+      <MPValue>
+        <_code>53</_code>
+        <_label>FixedWingRollFF</_label>
+        <code>53</code>
+        <label>FixedWingRollFF</label>
+      </MPValue>
+      <MPValue>
+        <_code>54</_code>
+        <_label>FixedWingPitchP</_label>
+        <code>54</code>
+        <label>FixedWingPitchP</label>
+      </MPValue>
+      <MPValue>
+        <_code>55</_code>
+        <_label>FixedWingPitchI</_label>
+        <code>55</code>
+        <label>FixedWingPitchI</label>
+      </MPValue>
+      <MPValue>
+        <_code>56</_code>
+        <_label>FixedWingPitchD</_label>
+        <code>56</code>
+        <label>FixedWingPitchD</label>
+      </MPValue>
+      <MPValue>
+        <_code>57</_code>
+        <_label>FixedWingPitchFF</_label>
+        <code>57</code>
+        <label>FixedWingPitchFF</label>
+      </MPValue>
+      <MPValue>
+        <_code>101</_code>
+        <_label>Set_RateRollPitch</_label>
+        <code>101</code>
+        <label>Set_RateRollPitch</label>
+      </MPValue>
+      <MPValue>
+        <_code>102</_code>
+        <_label>Set_RateRoll</_label>
+        <code>102</code>
+        <label>Set_RateRoll</label>
+      </MPValue>
+      <MPValue>
+        <_code>103</_code>
+        <_label>Set_RatePitch</_label>
+        <code>103</code>
+        <label>Set_RatePitch</label>
+      </MPValue>
+      <MPValue>
+        <_code>104</_code>
+        <_label>Set_RateYaw</_label>
+        <code>104</code>
+        <label>Set_RateYaw</label>
+      </MPValue>
+      <MPValue>
+        <_code>105</_code>
+        <_label>Set_AngleRollPitch</_label>
+        <code>105</code>
+        <label>Set_AngleRollPitch</label>
+      </MPValue>
+      <MPValue>
+        <_code>106</_code>
+        <_label>Set_VelXY</_label>
+        <code>106</code>
+        <label>Set_VelXY</label>
+      </MPValue>
+      <MPValue>
+        <_code>107</_code>
+        <_label>Set_AccelZ</_label>
+        <code>107</code>
+        <label>Set_AccelZ</label>
+      </MPValue>
+    </valueList>
+    <group>TUNE_</group>
+    <name>TUNE_PARAM</name>
+    <values>0:None 1:RateRollPI 2:RateRollP 3:RateRollI 4:RateRollD 5:RatePitchPI 6:RatePitchP 7:RatePitchI 8:RatePitchD 9:RateYawPI 10:RateYawP 11:RateYawI 12:RateYawD 13:AngleRollP 14:AnglePitchP 15:AngleYawP 16:PosXYP 17:PosZP 18:VelXYP 19:VelXYI 20:VelZP 21:AccelZP 22:AccelZI 23:AccelZD 50:FixedWingRollP 51:FixedWingRollI 52:FixedWingRollD 53:FixedWingRollFF 54:FixedWingPitchP 55:FixedWingPitchI 56:FixedWingPitchD 57:FixedWingPitchFF 101:Set_RateRollPitch 102:Set_RateRoll 103:Set_RatePitch 104:Set_RateYaw 105:Set_AngleRollPitch 106:Set_VelXY 107:Set_AccelZ </values>
+    <description>This sets which parameter or set of parameters will be tuned. Values greater than 100 indicate a set of parameters rather than a single parameter. Parameters less than 50 are for QuadPlane vertical lift motors only.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0.7</min>
+    <max>1.5</max>
+    <group>PTCH2SRV_</group>
+    <name>PTCH2SRV_RLL</name>
+    <range>0.7 1.5</range>
+    <increment>0.05</increment>
+    <description>Gain added to pitch to keep aircraft from descending or ascending in turns. Increase in increments of 0.05 to reduce altitude loss. Decrease for altitude gain.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>4</max>
+    <group>TUNE_</group>
+    <name>TUNE_RANGE</name>
+    <range>0 4</range>
+    <increment>1</increment>
+    <description>This sets the range over which tuning will change a parameter. A value of 2 means the tuning parameter will go from 0.5 times the start value to 2x the start value over the range of the tuning channel</description>
+  </MavlinkParameter>
+</ArrayOfMavlinkParameter>

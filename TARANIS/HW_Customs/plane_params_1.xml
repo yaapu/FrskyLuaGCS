@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfMavlinkParameter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>DoNotUse</_label>
+        <code>0</code>
+        <label>DoNotUse</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>Use</_label>
+        <code>1</code>
+        <label>Use</label>
+      </MPValue>
+      <MPValue>
+        <_code>2</_code>
+        <_label>UseWhenZeroThrottle</_label>
+        <code>2</code>
+        <label>UseWhenZeroThrottle</label>
+      </MPValue>
+    </valueList>
+    <group>ARSPD_</group>
+    <name>ARSPD_USE</name>
+    <values>0:DoNotUse 1:Use 2:UseWhenZeroThrottle </values>
+    <description>Enables airspeed use for automatic throttle modes and replaces control from THR_TRIM. Continues to display and log airspeed if set to 0. Uses airspeed for control if set to 1. Only uses airspeed when throttle = 0 if set to 2 (useful for gliders with airspeed sensors behind propellers).</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>Disable</_label>
+        <code>0</code>
+        <label>Disable</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>Enable</_label>
+        <code>1</code>
+        <label>Enable</label>
+      </MPValue>
+    </valueList>
+    <group>ARSPD_</group>
+    <name>ARSPD_SKIP_CAL</name>
+    <values>0:Disable 1:Enable </values>
+    <description>This parameter allows you to skip airspeed offset calibration on startup, instead using the offset from the last calibration. This may be desirable if the offset variance between flights for your sensor is low and you want to avoid having to cover the pitot tube on each boot.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>1</min>
+    <max>10</max>
+    <group>ArduPlane</group>
+    <name>FBWB_CLIMB_RATE</name>
+    <range>1 10</range>
+    <increment>0.1</increment>
+    <unit>m/s</unit>
+    <unitdes>meters per second</unitdes>
+    <description>This sets the rate in m/s at which FBWB and CRUISE modes will change its target altitude for full elevator deflection. Note that the actual climb rate of the aircraft can be lower than this, depending on your airspeed and throttle control settings. If you have this parameter set to the default value of 2.0, then holding the elevator at maximum deflection for 10 seconds would change the target altitude by 20 meters.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>15</max>
+    <group>ArduPlane</group>
+    <name>STAB_PITCH_DOWN</name>
+    <range>0 15</range>
+    <increment>0.1</increment>
+    <unit>deg</unit>
+    <unitdes>degrees</unitdes>
+    <description>Degrees of down pitch added when throttle is below TRIM_THROTTLE in FBWA and AUTOTUNE modes. Scales linearly so full value is added when THR_MIN is reached. Helps to keep airspeed higher in glides or landing approaches and prevents accidental stalls. 2 degrees recommended for most planes.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>100</max>
+    <group>ArduPlane</group>
+    <name>THR_MAX</name>
+    <range>0 100</range>
+    <increment>1</increment>
+    <unit>%</unit>
+    <unitdes>percent</unitdes>
+    <description>Maximum throttle percentage used in automatic throttle modes.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <group>ArduPlane</group>
+    <name>TRIM_ARSPD_CM</name>
+    <unit>cm/s</unit>
+    <unitdes>centimeters per second</unitdes>
+    <description>Target airspeed in cm/s in automatic throttle modes. Value is as an indicated (calibrated/apparent) airspeed.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>5</min>
+    <max>100</max>
+    <group>ArduPlane</group>
+    <name>ARSPD_FBW_MAX</name>
+    <range>5 100</range>
+    <increment>1</increment>
+    <unit>m/s</unit>
+    <unitdes>meters per second</unitdes>
+    <description>Maximum airspeed demanded in automatic throttle modes. Should be set slightly less than level flight speed at THR_MAX and also at least 50% above ARSPD_FBW_MIN to allow for accurate TECS altitude control.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>5</min>
+    <max>100</max>
+    <group>ArduPlane</group>
+    <name>ARSPD_FBW_MIN</name>
+    <range>5 100</range>
+    <increment>1</increment>
+    <unit>m/s</unit>
+    <unitdes>meters per second</unitdes>
+    <description>Minimum airspeed demanded in automatic throttle modes. Should be set to 20% higher than level flight stall speed.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>100</max>
+    <group>ArduPlane</group>
+    <name>TRIM_THROTTLE</name>
+    <range>0 100</range>
+    <increment>1</increment>
+    <unit>%</unit>
+    <unitdes>percent</unitdes>
+    <description>Target percentage of throttle to apply for flight in automatic throttle modes and throttle percentage that maintains TRIM_ARSPD_CM. Caution: low battery voltages at the end of flights may require higher throttle to maintain airspeed.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>1</min>
+    <max>10</max>
+    <group>ArduPlane</group>
+    <name>AUTOTUNE_LEVEL</name>
+    <range>1 10</range>
+    <increment>1</increment>
+    <description>Level of aggressiveness of pitch and roll PID gains. Lower values result in a 'softer' tune. Level 6 recommended for most planes.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>-0.1745</min>
+    <max>+0.1745</max>
+    <group>AHRS_</group>
+    <name>AHRS_TRIM_Y</name>
+    <range>-0.1745 +0.1745</range>
+    <increment>0.01</increment>
+    <unit>rad</unit>
+    <unitdes>radians</unitdes>
+    <description>Compensates for the pitch angle difference between the control board and the frame. Positive values make the vehicle pitch up/back.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>-0.1745</min>
+    <max>+0.1745</max>
+    <group>AHRS_</group>
+    <name>AHRS_TRIM_X</name>
+    <range>-0.1745 +0.1745</range>
+    <increment>0.01</increment>
+    <unit>rad</unit>
+    <unitdes>radians</unitdes>
+    <description>Compensates for the roll angle difference between the control board and the frame. Positive values make the vehicle roll right.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>-1000000</min>
+    <max>1000000</max>
+    <group>LAND_</group>
+    <name>LAND_PITCH_CD</name>
+    <range>-1000000 1000000</range>
+    <increment>10</increment>
+    <unit>cdeg</unit>
+    <unitdes>centidegrees</unitdes>
+    <description>Used in autoland to give the minimum pitch in the final stage of landing (after the flare). This parameter can be used to ensure that the final landing attitude is appropriate for the type of undercarriage on the aircraft. Note that it is a minimum pitch only - the landing code will control pitch above this value to try to achieve the configured landing sink rate.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>9000</max>
+    <group>ArduPlane</group>
+    <name>LIM_ROLL_CD</name>
+    <range>0 9000</range>
+    <increment>10</increment>
+    <unit>cdeg</unit>
+    <unitdes>centidegrees</unitdes>
+    <description>Maximum bank angle commanded in modes with stabilized limits. Increase this value for sharper turns, but decrease to prevent accelerated stalls.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>None</_label>
+        <code>0</code>
+        <label>None</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>All</_label>
+        <code>1</code>
+        <label>All</label>
+      </MPValue>
+      <MPValue>
+        <_code>258038</_code>
+        <_label>No GPS</_label>
+        <code>258038</code>
+        <label>No GPS</label>
+      </MPValue>
+      <MPValue>
+        <_code>261118</_code>
+        <_label>No Logging</_label>
+        <code>261118</code>
+        <label>No Logging</label>
+      </MPValue>
+      <MPValue>
+        <_code>262126</_code>
+        <_label>No INS</_label>
+        <code>262126</code>
+        <label>No INS</label>
+      </MPValue>
+    </valueList>
+    <min />
+    <max />
+    <group>ARMING_</group>
+    <name>ARMING_CHECK</name>
+    <range />
+    <increment>0:All,1:Barometer,2:Compass,3:GPS lock,4:INS,5:Parameters,6:RC Channels,7:Board voltage,8:Battery Level,9:Airspeed,10:Logging Available,11:Hardware safety switch,12:GPS Configuration,13:System,14:Mission,15:Rangefinder,16:Camera,17:AuxAuth</increment>
+    <values>0:None,1:All,258038:No GPS,261118:No Logging,262126:No INS</values>
+    <description>Checks prior to arming motor. This is a bitmask of checks that will be performed before allowing arming. The default is no checks, allowing arming at any time. You can select whatever checks you prefer by adding together the values of each check type to set this parameter. For example, to only allow arming when you have GPS lock and no RC failsafe you would set ARMING_CHECK to 72. For most users it is recommended that you set this to 1 to enable all checks.</description>
+    <bitmask>0:All,1:Barometer,2:Compass,3:GPS lock,4:INS,5:Parameters,6:RC Channels,7:Board voltage,8:Battery Level,9:Airspeed,10:Logging Available,11:Hardware safety switch,12:GPS Configuration,13:System,14:Mission,15:Rangefinder,16:Camera,17:AuxAuth</bitmask>
+  </MavlinkParameter>
+</ArrayOfMavlinkParameter>

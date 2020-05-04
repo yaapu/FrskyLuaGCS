@@ -4,12 +4,6 @@ local description = "Rover Params"
 
 local parameters = {
 --[[
- --[[
-  Checks prior to arming motor. This is a bitmask of checks that will be performed before allowing arming. The default is no checks, allowing arming at any time. You can select whatever checks you prefer by adding together the values of each check type to set this parameter. For example, to only allow arming when you have GPS lock and no RC failsafe you would set ARMING_CHECK to 72. For most users it is recommended that you set this to 1 to enable all checks.
---]]
-{"ARMING_CHECK",{"None","All","No Logging","No INS","NoGPS",},{0,1,2,261118,262126,258038,}},
-
---[[
   The target speed in auto missions.
 --]]
 {"CRUISE_SPEED",0,100,0.1,"m/s",},
@@ -18,16 +12,6 @@ local parameters = {
   The base throttle percentage to use in auto mode. The CRUISE_SPEED parameter controls the target speed, but the rover starts with the CRUISE_THROTTLE setting as the initial estimate for how much throttle is needed to achieve that speed. It then adjusts the throttle based on how fast the rover is actually going.
 --]]
 {"CRUISE_THROTTLE",0,100,1,"%",},
-
---[[
-  What to do on a failsafe event
---]]
-{"FS_ACTION",{"Nothing","RTL","Hold","SmartRTL or RTL","SmartRTL or Hold",},{0,1,2,3,4,}},
-
---[[
-  Bitmask to enable Rover failsafe options
---]]
-{"FS_OPTIONS",{"None","Failsafe enabled in Hold mode",},{0,1,}},
 
 --[[
   Trim PWM pulse width in microseconds. Typically 1000 is lower limit, 1500 is neutral and 2000 is upper limit.
@@ -48,6 +32,21 @@ local parameters = {
   Waypoint overshoot maximum in meters.  The vehicle will attempt to stay within this many meters of the track as it completes one waypoint and moves to the next.
 --]]
 {"WP_OVERSHOOT",0,10,0.1,"m",},
+
+--[[
+  Checks prior to arming motor. This is a bitmask of checks that will be performed before allowing arming. The default is no checks, allowing arming at any time. You can select whatever checks you prefer by adding together the values of each check type to set this parameter. For example, to only allow arming when you have GPS lock and no RC failsafe you would set ARMING_CHECK to 72. For most users it is recommended that you set this to 1 to enable all checks.
+--]]
+{"ARMING_CHECK",{"None","All","No GPS","No Logging","No INS",},{0,1,258038,261118,262126,}},
+
+--[[
+  Bitmask to enable Rover failsafe options
+--]]
+{"FS_OPTIONS",{"None","Failsafe enabled in Hold mode",},{0,1,}},
+
+--[[
+  What to do on a failsafe event
+--]]
+{"FS_ACTION",{"Nothing","RTL","Hold","SmartRTL or RTL","SmartRTL or Hold",},{0,1,2,3,4,}},
 
 }
 return { list = parameters,description = description}

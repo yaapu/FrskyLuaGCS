@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfMavlinkParameter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>100</max>
+    <group>Rover</group>
+    <name>CRUISE_SPEED</name>
+    <range>0 100</range>
+    <increment>0.1</increment>
+    <unit>m/s</unit>
+    <unitdes>meters per second</unitdes>
+    <description>The target speed in auto missions.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>100</max>
+    <group>Rover</group>
+    <name>CRUISE_THROTTLE</name>
+    <range>0 100</range>
+    <increment>1</increment>
+    <unit>%</unit>
+    <unitdes>percent</unitdes>
+    <description>The base throttle percentage to use in auto mode. The CRUISE_SPEED parameter controls the target speed, but the rover starts with the CRUISE_THROTTLE setting as the initial estimate for how much throttle is needed to achieve that speed. It then adjusts the throttle based on how fast the rover is actually going.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>800</min>
+    <max>2200</max>
+    <group>SERVO1_</group>
+    <name>SERVO1_TRIM</name>
+    <range>800 2200</range>
+    <increment>1</increment>
+    <unit>PWM</unit>
+    <unitdes>PWM in microseconds</unitdes>
+    <description>Trim PWM pulse width in microseconds. Typically 1000 is lower limit, 1500 is neutral and 2000 is upper limit.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>100</max>
+    <group>WP_</group>
+    <name>WP_SPEED</name>
+    <range>0 100</range>
+    <increment>0.1</increment>
+    <unit>m/s</unit>
+    <unitdes>meters per second</unitdes>
+    <description>Waypoint speed default</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>100</max>
+    <group>WP_</group>
+    <name>WP_RADIUS</name>
+    <range>0 100</range>
+    <increment>0.1</increment>
+    <unit>m</unit>
+    <unitdes>meters</unitdes>
+    <description>The distance in meters from a waypoint when we consider the waypoint has been reached. This determines when the vehicle will turn toward the next waypoint.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>10</max>
+    <group>WP_</group>
+    <name>WP_OVERSHOOT</name>
+    <range>0 10</range>
+    <increment>0.1</increment>
+    <unit>m</unit>
+    <unitdes>meters</unitdes>
+    <description>Waypoint overshoot maximum in meters.  The vehicle will attempt to stay within this many meters of the track as it completes one waypoint and moves to the next.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>None</_label>
+        <code>0</code>
+        <label>None</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>All</_label>
+        <code>1</code>
+        <label>All</label>
+      </MPValue>
+      <MPValue>
+        <_code>258038</_code>
+        <_label>No GPS</_label>
+        <code>258038</code>
+        <label>No GPS</label>
+      </MPValue>
+      <MPValue>
+        <_code>261118</_code>
+        <_label>No Logging</_label>
+        <code>261118</code>
+        <label>No Logging</label>
+      </MPValue>
+      <MPValue>
+        <_code>262126</_code>
+        <_label>No INS</_label>
+        <code>262126</code>
+        <label>No INS</label>
+      </MPValue>
+    </valueList>
+    <min />
+    <max />
+    <group>ARMING_</group>
+    <name>ARMING_CHECK</name>
+    <range />
+    <increment>0:All,1:Barometer,2:Compass,3:GPS lock,4:INS,5:Parameters,6:RC Channels,7:Board voltage,8:Battery Level,9:Airspeed,10:Logging Available,11:Hardware safety switch,12:GPS Configuration,13:System,14:Mission,15:Rangefinder,16:Camera,17:AuxAuth</increment>
+    <values>0:None,1:All,258038:No GPS,261118:No Logging,262126:No INS</values>
+    <description>Checks prior to arming motor. This is a bitmask of checks that will be performed before allowing arming. The default is no checks, allowing arming at any time. You can select whatever checks you prefer by adding together the values of each check type to set this parameter. For example, to only allow arming when you have GPS lock and no RC failsafe you would set ARMING_CHECK to 72. For most users it is recommended that you set this to 1 to enable all checks.</description>
+    <bitmask>0:All,1:Barometer,2:Compass,3:GPS lock,4:INS,5:Parameters,6:RC Channels,7:Board voltage,8:Battery Level,9:Airspeed,10:Logging Available,11:Hardware safety switch,12:GPS Configuration,13:System,14:Mission,15:Rangefinder,16:Camera,17:AuxAuth</bitmask>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>None</_label>
+        <code>0</code>
+        <label>None</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>Failsafe enabled in Hold mode</_label>
+        <code>1</code>
+        <label>Failsafe enabled in Hold mode</label>
+      </MPValue>
+    </valueList>
+    <min />
+    <max />
+    <group>Rover</group>
+    <name>FS_OPTIONS</name>
+    <range />
+    <increment>0:Failsafe enabled in Hold mode</increment>
+    <values>0:None,1:Failsafe enabled in Hold mode</values>
+    <description>Bitmask to enable Rover failsafe options</description>
+    <bitmask>0:Failsafe enabled in Hold mode</bitmask>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>Nothing</_label>
+        <code>0</code>
+        <label>Nothing</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>RTL</_label>
+        <code>1</code>
+        <label>RTL</label>
+      </MPValue>
+      <MPValue>
+        <_code>2</_code>
+        <_label>Hold</_label>
+        <code>2</code>
+        <label>Hold</label>
+      </MPValue>
+      <MPValue>
+        <_code>3</_code>
+        <_label>SmartRTL or RTL</_label>
+        <code>3</code>
+        <label>SmartRTL or RTL</label>
+      </MPValue>
+      <MPValue>
+        <_code>4</_code>
+        <_label>SmartRTL or Hold</_label>
+        <code>4</code>
+        <label>SmartRTL or Hold</label>
+      </MPValue>
+    </valueList>
+    <min />
+    <max />
+    <group>Rover</group>
+    <name>FS_ACTION</name>
+    <range />
+    <values>0:Nothing,1:RTL,2:Hold,3:SmartRTL or RTL,4:SmartRTL or Hold</values>
+    <description>What to do on a failsafe event</description>
+  </MavlinkParameter>
+</ArrayOfMavlinkParameter>

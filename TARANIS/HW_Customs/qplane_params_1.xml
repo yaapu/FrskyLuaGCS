@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfMavlinkParameter xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MavlinkParameter>
+    <valueList />
+    <min>0</min>
+    <max>45</max>
+    <group>Q_</group>
+    <name>Q_LOIT_ANG_MAX</name>
+    <range>0 45</range>
+    <increment>1</increment>
+    <unit>deg</unit>
+    <unitdes>degrees</unitdes>
+    <description>Loiter maximum lean angle. Set to zero for 2/3 of PSC_ANGLE_MAX or ANGLE_MAX</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>Disabled</_label>
+        <code>0</code>
+        <label>Disabled</label>
+      </MPValue>
+      <MPValue>
+        <_code>1</_code>
+        <_label>Enabled</_label>
+        <code>1</code>
+        <label>Enabled</label>
+      </MPValue>
+    </valueList>
+    <group>Q_</group>
+    <name>Q_RTL_MODE</name>
+    <values>0:Disabled 1:Enabled </values>
+    <description>If this is set to 1 then an RTL will change to QRTL when within RTL_RADIUS meters of the RTL destination</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>-10</min>
+    <max>+10</max>
+    <group>Q_</group>
+    <name>Q_TRIM_PITCH</name>
+    <range>-10 +10</range>
+    <increment>0.1</increment>
+    <unit>deg</unit>
+    <unitdes>degrees</unitdes>
+    <description>This sets the compensation for the pitch angle trim difference between forward and vertical flight pitch, NOTE! this is relative to forward flight trim not mounting locaiton. For tailsitters this is relative to a baseline of 90 degrees.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>1000</min>
+    <max>8000</max>
+    <group>Q_</group>
+    <name>Q_ANGLE_MAX</name>
+    <range>1000 8000</range>
+    <increment>10</increment>
+    <unit>cdeg</unit>
+    <unitdes>centidegrees</unitdes>
+    <description>Maximum lean angle in all VTOL flight modes</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList />
+    <min>5</min>
+    <max>80</max>
+    <group>Q_</group>
+    <name>Q_TAILSIT_ANGLE</name>
+    <range>5 80</range>
+    <increment>1</increment>
+    <description>This is the angle at which tailsitter aircraft will change from VTOL control to fixed wing control.</description>
+  </MavlinkParameter>
+  <MavlinkParameter>
+    <valueList>
+      <MPValue>
+        <_code>0</_code>
+        <_label>LevelTransition</_label>
+        <code>0</code>
+        <label>LevelTransition</label>
+      </MPValue>
+      <MPValue>
+        <_code>16</_code>
+        <_label>FW Apprch</_label>
+        <code>16</code>
+        <label>FW Apprch</label>
+      </MPValue>
+      <MPValue>
+        <_code>33</_code>
+        <_label>Level+QRTL</_label>
+        <code>33</code>
+        <label>Level+QRTL</label>
+      </MPValue>
+      <MPValue>
+        <_code>49</_code>
+        <_label>Lvl+FW+QRTL</_label>
+        <code>49</code>
+        <label>Lvl+FW+QRTL</label>
+      </MPValue>
+    </valueList>
+    <min />
+    <max />
+    <group>Q_</group>
+    <name>Q_OPTIONS</name>
+    <range />
+    <increment>0:LevelTransition,1:AllowFWTakeoff,2:AllowFWLand,3:Respect takeoff frame types,4:Use a fixed wing approach for VTOL landings,5:Use QRTL instead of QLAND for failsafe when in VTOL modes,6:Use idle governor in MANUAL</increment>
+    <values>0:LevelTransition,16:FW Apprch,33:Level+QRTL,49:Lvl+FW+QRTL</values>
+    <description>This provides a set of additional control options for quadplanes. LevelTransition means that the wings should be held level to within LEVEL_ROLL_LIMIT degrees during transition to fixed wing flight, and the vehicle will not use the vertical lift motors to climb during the transition. If AllowFWTakeoff bit is not set then fixed wing takeoff on quadplanes will instead perform a VTOL takeoff. If AllowFWLand bit is not set then fixed wing land on quadplanes will instead perform a VTOL land. If respect takeoff frame is not set the vehicle will interpret all takeoff waypoints as an altitude above the corrent position. When Use QRTL is set it will replace QLAND with QRTL for failsafe actions when in VTOL modes.</description>
+    <bitmask>0:LevelTransition,1:AllowFWTakeoff,2:AllowFWLand,3:Respect takeoff frame types,4:Use a fixed wing approach for VTOL landings,5:Use QRTL instead of QLAND for failsafe when in VTOL modes,6:Use idle governor in MANUAL</bitmask>
+  </MavlinkParameter>
+</ArrayOfMavlinkParameter>
