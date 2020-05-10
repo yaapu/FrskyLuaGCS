@@ -336,7 +336,7 @@ local function run(event)
 end
 
 local function init()
-  pushMessage("Yaapu LuaGCS 0.7-dev")
+  pushMessage("Yaapu LuaGCS 0.8-dev")
   compileDefaultPages("params")
   compileDefaultPages("commands")
   compileTuningPages()

@@ -349,7 +349,7 @@ local function drawWarning(text)
   lcd.drawFilledRectangle(50,76, 380, 80, CUSTOM_COLOR)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
   lcd.drawText(65, 80, text, DBLSIZE+CUSTOM_COLOR)
-  lcd.drawText(130, 130, "Yaapu LuaGCS 0.7-dev", SMLSIZE+CUSTOM_COLOR)
+  lcd.drawText(130, 130, "Yaapu LuaGCS 0.8-dev", SMLSIZE+CUSTOM_COLOR)
 end
 
 local function drawBars(page, menu)

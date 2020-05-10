@@ -96,7 +96,7 @@
 
 
 
-local description = "Heli Tuning"
+local description = "HELI TUNE"
 local labelWidth = 54
 local columnWidth = 120
 local boxes = {
@@ -179,7 +179,6 @@ COMBO
   {"WPNAV_SPEED_UP"       , 10, 1000, 50            , x=363,y=32+164,label="Spd Up"},
   {"WPNAV_SPEED_DN"       , 10, 500, 10             , x=363,y=32+180,label="Spd Dn"},
   {"LOIT_SPEED"           , 20, 2000, 50            , x=363,y=32+196,label="Loiter"},
-  
   -- row 4
   {"AUTOTUNE_AXES", 1, 1, {"All","Roll","Ptch","Yaw","R+P","R+Y","P+Y"}, {7,1,2,3,4,5,6}, x=123,y=32+184,label="Axis"},
   {"AUTOTUNE_AGGR"        , 0.05, 0.1, 0.01         , x=123,y=32+200,label="Aggr"},

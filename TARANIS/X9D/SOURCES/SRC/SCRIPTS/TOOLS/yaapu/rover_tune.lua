@@ -95,7 +95,7 @@
 
 
 
-local description = "Rover/Boat Tuning"
+local description = "ROVER TUNE"
 local labelWidth = 83
 local columnWidth = 160
 local boxes = {

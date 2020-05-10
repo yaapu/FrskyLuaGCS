@@ -95,7 +95,7 @@
 
 
 
-local description = "Plane Tuning"
+local description = "PLANE TUNE"
 local labelWidth = 83
 local columnWidth = 160
 local boxes = {
@@ -131,7 +131,7 @@ COMBO
   {"RLL2SRV_I"      , 0.0, 1.0, 0.05      , x=5,y=32+18,label="I"},
   {"RLL2SRV_D"      , 0.0, 0.2, 0.01      , x=5,y=32+34,label="D"},
   {"RLL2SRV_IMAX"   , 0, 4500, 1          , x=5,y=32+50,label="IMAX"},
-  
+
   {"PTCH2SRV_P"     , 0.1, 4.0, 0.1       , x=165,y=32+2,label="P"},
   {"PTCH2SRV_I"     , 0.1, 1.0, 0.05      , x=165,y=32+18,label="I"},
   {"PTCH2SRV_D"     , 0.0, 0.2, 0.01      , x=165,y=32+34,label="D"},
@@ -141,6 +141,7 @@ COMBO
   {"YAW2SRV_INT"    , 0.0, 2.0, 0.25      , x=325,y=32+18,label="INT"},
   {"YAW2SRV_DAMP"   , 0.0, 2.0, 0.25      , x=325,y=32+34,label="DAMP"},
   {"YAW2SRV_IMAX"   , 0, 4500, 1          , x=325,y=32+50,label="IMAX"},
+
   --row 2
   {"NAVL1_PERIOD"   , 1, 60, 1            , x=5,y=32+82,label="Period"},
   {"NAVL1_DAMPING"  , 0.6, 1.0, 0.05      , x=5,y=32+98,label="Damping"},

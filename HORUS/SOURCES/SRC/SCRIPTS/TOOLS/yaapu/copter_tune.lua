@@ -96,7 +96,7 @@
 
 
 
-local description = "Copter Tuning"
+local description = "COPTER TUNE"
 local panel = true
 local labelWidth = 54
 local columnWidth = 120

@@ -96,7 +96,7 @@
 
 
 
-local description = "Quadplane Tuning"
+local description = "QPLANE TUNE"
 local panel = true
 local labelWidth = 54
 local columnWidth = 120
@@ -120,33 +120,21 @@ COMBO
 }
 --]]local parameters = {
   -- row 1
-  {"Q_A_ANG_RLL_P"        , 0, 12.0, 0.05           , x=3,y=32+5,label="P"},
-  {"Q_A_ANG_PIT_P"        , 0, 12.0, 0.05           , x=123,y=32+5,label="P"},
-  {"Q_A_ANG_YAW_P"        , 0, 12.0, 0.05           , x=243,y=32+5,label="P"},
-  {"Q_P_POSXY_P"          , 0.5, 2, 0.1             , x=363,y=32+5,label="P"},
-  
   -- row 2
   {"Q_A_RAT_RLL_P"        , 0.01, 0.5, 0.005        , x=3,y=32+43,label="P"},
   {"Q_A_RAT_RLL_I"        , 0.01, 2.0, 0.01         , x=3,y=32+59,label="I"},
   {"Q_A_RAT_RLL_D"        , 0.0, 0.05, 0.001        , x=3,y=32+75,label="D"},
-  {"Q_A_RAT_RLL_IMAX"     , 0, 1, 0.01              , x=3,y=32+91,label="IMAX"},
-  --{"ATC_RAT_RLL_FILT"   , 1, 50, 1                , x=3,y=32+107,label="FILT"},
-  
   {"Q_A_RAT_PIT_P"        , 0.01, 0.5, 0.005        , x=123,y=32+43,label="P"},
   {"Q_A_RAT_PIT_I"        , 0.01, 2.0, 0.01         , x=123,y=32+59,label="I"},
   {"Q_A_RAT_PIT_D"        , 0.0, 0.05, 0.001        , x=123,y=32+75,label="D"},
-  {"Q_A_RAT_PIT_IMAX"     , 0, 1, 0.01              , x=123,y=32+91,label="IMAX"},
-  --{"ATC_RAT_PIT_FILT"   , 1, 50, 1                , x=123,y=32+107,label="FILT"},
-  
   {"Q_A_RAT_YAW_P"        , 0.1, 2.5, 0.005         , x=243,y=32+43,label="P"},
   {"Q_A_RAT_YAW_I"        , 0.01, 1.0, 0.01         , x=243,y=32+59,label="I"},
   {"Q_A_RAT_YAW_D"        , 0.0, 0.02, 0.001        , x=243,y=32+75,label="D"},
-  {"Q_A_RAT_YAW_IMAX"     , 0, 1, 0.01              , x=243,y=32+91,label="IMAX"},
-  --{"ATC_RAT_YAW_FILT"   , 1, 5, 1                 , x=243,y=32+107,label="FILT"},
-  
   -- row 4
   {"Q_AUTOTUNE_AXES", {"All","Roll","Ptch","Yaw","R+P","R+Y","P+Y"}, {7,1,2,4,3,5,6}, x=123,y=32+184,label="Axis"},
   {"Q_AUTOTUNE_AGGR"      , 0.05, 0.1, 0.01         , x=123,y=32+200,label="Aggr"},
+  {"TUNE_PARAM",{"None","RateRollPI","RateRollP","RateRollI","RateRollD","RatePitchPI","RatePitchP","RatePitchI","RatePitchD","RateYawPI","RateYawP","RateYawI","RateYawD","AngleRollP","AnglePitchP","AngleYawP","PosXYP","PosZP","VelXYP","VelXYI","VelZP","AccelZP","AccelZI","AccelZD",},{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,}},
+  {"TUNE_RANGE",0,1000000,1,"",},
 }
 
 return {

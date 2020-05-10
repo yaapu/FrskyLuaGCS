@@ -512,7 +512,11 @@ end
 
 local function incMenuItem(items,idx)
   if type(items[idx][2]) == "table" then
-    items[idx].value = items[idx].value + 1
+    if items[idx].value == nil then
+      items[idx].value = 1
+    else
+      items[idx].value = items[idx].value + 1
+    end
     if items[idx].value > #items[idx][2] then
       items[idx].value = 1
     end
@@ -526,7 +530,11 @@ end
 
 local function decMenuItem(items,idx)
   if type(items[idx][2]) == "table" then
-    items[idx].value = items[idx].value - 1
+    if items[idx].value == nil then
+      items[idx].value = 1
+    else
+      items[idx].value = items[idx].value - 1
+    end
     if items[idx].value < 1 then
       items[idx].value = #items[idx][2]
     end
@@ -620,7 +628,7 @@ local function drawList(params,event)
       -- save last value for undo
       items[menu.selectedItem].lastValue = items[menu.selectedItem].value
     end
-    if items[menu.selectedItem].value ~= nil then
+    if items[menu.selectedItem].value ~= nil or items[menu.selectedItem].status == 6 then
       menu.editSelected = not menu.editSelected
       menu.updated = true
     else
@@ -1294,7 +1302,6 @@ local function isFileEmpty(filename)
   end
   local str = io.read(file,10)
   io.close(file)
-  print("luaDebug: ", filename," #str=",#str)
   if #str < 10 then
     return true
   end
@@ -1306,6 +1313,7 @@ local function searchPages(filepath,prefix,pages,pageType)
   local found = 1
   while found > 0 do
     local page = string.format("%s%s_%s_%d.lua",filepath, prefix, pageType, found)
+    print("luaDebug: page=", page)
     if isFileEmpty(page) then
       break
     end
@@ -1385,6 +1393,7 @@ end
 
 local function getModelFilename()
   local info = model.getInfo()
+  --return "/MODELS/yaapu/" .. string.lower(string.gsub(info.name, "[%c%p%s%z]", "")..".cfg")
   return string.lower(string.gsub(info.name, "[%c%p%s%z]", ""))
 end
 
@@ -1557,8 +1566,8 @@ local function init()
   drawLib = utils.doLibrary("horus")
   searchDefaultPages("params",paramsPages)
   searchDefaultPages("commands",commandsPages)
-  searchPages(cfgPath, getModelFilename(), "params", paramsPages)
-  searchPages(cfgPath, getModelFilename(), "commands", commandsPages)
+  searchPages(cfgPath, getModelFilename(), paramsPages, "params")
+  searchPages(cfgPath, getModelFilename(), commandsPages, "commands")
     
   
   
@@ -1567,7 +1576,7 @@ local function init()
   
   
   -- ok done
-  utils.pushMessage(7,"Yaapu LuaGCS 0.7-dev")
+  utils.pushMessage(7,"Yaapu LuaGCS 0.8-dev")
   
   collectgarbage()
   collectgarbage()
