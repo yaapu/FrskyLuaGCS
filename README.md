@@ -3,5 +3,5 @@ LUA based basic GCS
 
 **READ THE WIKI!**
 
-Inatall video:
+Install video:
 https://youtu.be/FCzwqhODTDI
