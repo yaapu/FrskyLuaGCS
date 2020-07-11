@@ -50,7 +50,6 @@
 --#define CACHE_PARAMS
 -- enable full telemetry debug
 --#define DEBUG_SPORT
---#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 

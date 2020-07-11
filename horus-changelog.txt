@@ -6,5 +6,9 @@ version 0.8
 
 fix model file loading
 
+version 0.9
+
+fix crc error
+improved memory footprint
 
 

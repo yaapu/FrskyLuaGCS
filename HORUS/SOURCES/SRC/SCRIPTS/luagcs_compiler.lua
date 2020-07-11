@@ -50,7 +50,6 @@
 --#define 
 -- enable full telemetry debug
 --#define DEBUG_SPORT
---#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
@@ -336,7 +335,7 @@ local function run(event)
 end
 
 local function init()
-  pushMessage("Yaapu LuaGCS 0.8-dev")
+  pushMessage("Yaapu LuaGCS 0.9-dev")
   compileDefaultPages("params")
   compileDefaultPages("commands")
   compileTuningPages()

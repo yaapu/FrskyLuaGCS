@@ -50,7 +50,6 @@
 --#define 
 -- enable full telemetry debug
 --#define DEBUG_SPORT
---#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
@@ -349,7 +348,7 @@ local function drawWarning(text)
   lcd.drawFilledRectangle(50,76, 380, 80, CUSTOM_COLOR)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
   lcd.drawText(65, 80, text, DBLSIZE+CUSTOM_COLOR)
-  lcd.drawText(130, 130, "Yaapu LuaGCS 0.8-dev", SMLSIZE+CUSTOM_COLOR)
+  lcd.drawText(130, 130, "Yaapu LuaGCS 0.9-dev", SMLSIZE+CUSTOM_COLOR)
 end
 
 local function drawBars(page, menu)
@@ -432,12 +431,16 @@ local function drawListItem(items,idx,menu,msgRequestStatus)
     flags = 0
   end
   if items[idx].value == nil then
-    lcd.drawText(280,18 + (idx-menu.offset-1)*16, "--------",flags+CUSTOM_COLOR+SMLSIZE)
+    lcd.drawText(165,18 + (idx-menu.offset-1)*16, "--------",flags+CUSTOM_COLOR+SMLSIZE)
   else
     if type(items[idx][2]) == "table" then -- COMBO
-      lcd.drawText(280,18 + (idx-menu.offset-1)*16, items[idx][2][items[idx].value],flags+CUSTOM_COLOR+SMLSIZE)
+      local option = tostring(items[idx][2][items[idx].value])
+      if #option > 25 then
+        option = string.sub(option,1,25)
+      end
+      lcd.drawText(165,18 + (idx-menu.offset-1)*16, option ,flags+CUSTOM_COLOR+SMLSIZE)
     else
-      lcd.drawText(280,18 + (idx-menu.offset-1)*16, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+CUSTOM_COLOR+SMLSIZE)
+      lcd.drawText(165,18 + (idx-menu.offset-1)*16, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+CUSTOM_COLOR+SMLSIZE)
     end
   end
   lcd.drawText(LCD_W-2,18 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)

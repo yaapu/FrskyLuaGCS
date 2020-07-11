@@ -22,6 +22,7 @@ COMBO
   --[[
     This sets the range over which tuning will change a parameter. A value of 2 means the tuning parameter will go from 0.5 times the start value to 2x the start value over the range of the tuning channel
   --]]  {"TUNE_RANGE",0,1000000,1,"",},
+  {"QWERT_QWERT_QWER",{"QWERT_QWERT_QWERT_QWERT_QWERT_QWERT_QWERT_QWERT_QWERT"},{1},value=1},
 }
 
 return {list=parameters,description=description}

@@ -50,7 +50,6 @@
 --#define CACHE_PARAMS
 -- enable full telemetry debug
 --#define DEBUG_SPORT
---#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
@@ -86,6 +85,7 @@
 
 
 
+--#define DEBUG_SPORT
 --[[
 0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
 1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
@@ -243,6 +243,7 @@ local commandsPages = {}
 
 -- parameters used to check specific vehicle params at boot
 local globalParams = {}
+local globalParamsDone = false
 
 --------------------
 -- tuning page
@@ -482,9 +483,7 @@ local function processMavliteMessage(msg)
   elseif msg.msgid == 22 then -- PARAM_VALUE
     local param_value = mavLib.msg_get_float(msg,0)
     local param_name = mavLib.msg_get_string(msg,4)
-
     utils.pushMessage(7,string.format("RX: ID=%d, %s : %f",msg.msgid,param_name,param_value))
-    
     local item = getItemByName(globalParams,param_name)
     
     if item == nil then
@@ -531,9 +530,7 @@ local function processMavliteMessage(msg)
   elseif msg.msgid == 77 then -- CMD_ACK
     local cmd_id = mavLib.msg_get_uint16(msg,0)
     local mav_result = mavLib.msg_get_uint8(msg,2)
-
     utils.pushMessage(7,string.format("RX: ID=%d, CMD=%d, RESULT=%d",msg.msgid, cmd_id, mav_result))
-    
     local item = getItemByCommandID( commands[page-(#tuningPages + #paramsPages)].list, cmd_id)
     
     if item ~= nil then
@@ -702,23 +699,20 @@ local function initCommands(items)
   collectgarbage()
 end
 
---[[
-  Process max MAX_ITEMS_PER_CYCLE items async
-  idx is global so it passes all items in separate invocations to prevent cpu kill
---]]local function processItemsParamGet(items)
-  local now = getTime()
-  local itemsProcessed = 1
+-- idx is global
+local function processItemsParamGet(items)
+  local itemsProcessed = 0
   while idx <= #items
   do
     -- check if a refresh is needed
     if items[idx].status == 1 then
-      local msg = createMsgParamRequestRead(items[idx][1])
-      if mavLib.msg_send(msg,utils) == true then
-        items[idx].status = 3
-        items[idx].timer = getTime()
+      if mavLib.queue_empty() then
+        local msg = createMsgParamRequestRead(items[idx][1])
+        if mavLib.queue_message(msg) == true then
+          items[idx].status = 3
+          items[idx].timer = getTime()
+        end
       end
-      utils.clearTable(msg)
-      msg = nil
     end
     idx = idx + 1
     if idx > #items then
@@ -726,13 +720,14 @@ end
     end
     -- limit the number of items of this invocation to prevent a cpu kill
     itemsProcessed = itemsProcessed + 1
-    if itemsProcessed > 1 then
+    if itemsProcessed > 5 then
       break
     end
   end
   collectgarbage()
   collectgarbage()
 end
+--]]
 
 local function processItemsParamSet(items)
   for i=1,#items
@@ -745,15 +740,14 @@ local function processItemsParamSet(items)
         if type(items[i][2]) == "table" then
           value = items[i][3][items[i].value]
         end
-        
-        local msg = createMsgParamSet(items[i][1], value)
-        --utils.pushMessage(7,"SET: "..items[i][1].." = "..tostring(value))
-        if mavLib.msg_send(msg,utils) == true then
-          items[i].status = 3
-          items[i].timer = getTime()
+        if mavLib.queue_empty() then
+          local msg = createMsgParamSet(items[i][1], value)
+          
+          if mavLib.queue_message(msg) == true then
+            items[i].status = 3
+            items[i].timer = getTime()
+          end
         end
-        utils.clearTable(msg)
-        msg = nil
       end
     end
   end
@@ -767,15 +761,13 @@ local function processCommandSet(items)
     -- check if a refresh is needed
     if items[i].status == 2 then
       if items[i].value ~= nil then
-        
-        local msg = createMsgCommandLong(items[i].cmd_id, items[i][3][items[i].value])
-        print(string.format("cmd_id=%d, param_count=%d",items[i].cmd_id, #items[i][3][items[i].value]))
-        if mavLib.msg_send(msg,utils) == true then
-          items[i].status = 3
-          items[i].timer = getTime()
+        if mavLib.queue_empty() then
+          local msg = createMsgCommandLong(items[i].cmd_id, items[i][3][items[i].value])
+          if mavLib.queue_message(msg) == true then
+            items[i].status = 3
+            items[i].timer = getTime()
+          end
         end
-        utils.clearTable(msg)
-        msg = nil
       end
     end
   end
@@ -790,7 +782,7 @@ local function processItemTimers(items)
     -- check if a refresh is needed
     if items[i].status == 3 then 
       -- check timer
-      if now - items[i].timer > 1000 then
+      if now - items[i].timer > 500 then
         items[i].status = 4
         items[i].timer = now
       end
@@ -825,21 +817,24 @@ local last_frame_id
 local last_data_id
 local last_value
 
+local last_mav_frame_id
+local last_mav_data_id
+local last_mav_value
+
 local last_pkt = ""
 local last_mav_pkt = ""
 
 local function background()
   for i=1,30
   do
-    local sensor_id,frame_id,data_id,value = sportTelemetryPop()
+    local sensor_id, frame_id, data_id, value = sportTelemetryPop()
     
     if sensor_id  ~= nil then
-      local pkt = string.format(";%02X;%04X;%08X",frame_id,data_id,value)
-      -- skip packet copies
-      if last_pkt ~= pkt then
-        last_pkt = pkt
-      
-        sportPacket.sensor_id = sensor_id
+      if last_frame_id ~= frame_id or last_data_id ~= data_id or last_value ~= value then
+        last_frame_id = frame_id
+        last_data_id = data_id
+        last_value = value
+        
         sportPacket.frame_id = frame_id
         sportPacket.data_id = data_id
         sportPacket.value = value
@@ -852,9 +847,10 @@ local function background()
           processTelemetry(sportPacket)
         elseif sportPacket.frame_id == 0x32 then
           -- skip mav interleaved packet copies
-          if last_mav_pkt ~= pkt then
-            last_mav_pkt = pkt
-            utils.pushMessage(7,string.format("%02X:%04X:%08X",sportPacket.frame_id,sportPacket.data_id,sportPacket.value))
+          if last_mav_frame_id ~= frame_id or last_mav_data_id ~= data_id or last_mav_value ~= value then
+            last_mav_frame_id = frame_id
+            last_mav_data_id = data_id
+            last_mav_value = value
             processSportData(sportPacket)
           end
         end
@@ -901,7 +897,10 @@ local function background()
     refreshTimer = getTime()
   end
   
-  mavLib.process_sport_tx_queue(utils)
+  for i=1,5
+  do
+    mavLib.process_sport_tx_queue(utils)
+  end
   
   collectgarbage()
   collectgarbage()
@@ -1097,7 +1096,6 @@ local function run(event)
         collectgarbage()
         collectgarbage()
         -- on page swithc clear tx queue
-        mavLib.clear_tx_queue()
         
         page = page+1
         -- on page switch reset item counter
@@ -1171,7 +1169,7 @@ local function init()
   
   
   -- ok done
-  utils.pushMessage(7,"Yaapu LuaGCS 0.8-dev")
+  utils.pushMessage(7,"Yaapu LuaGCS 0.9-dev")
   
   collectgarbage()
   collectgarbage()

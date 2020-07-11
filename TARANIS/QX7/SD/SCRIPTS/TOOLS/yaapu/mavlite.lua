@@ -1,12 +1,21 @@
 
 
 
+--#define DEBUG_SPORT
 
-local function clearTable(t)
+local current_packet_index = 0
+local packet_array_empty = true
+local packet_array = {}
+local packet_array_size = 0
+local tx_packet_count = 0
+local rx_packet_count = 0
+local pending_message = nil
+
+local function clear_table(t)
   if type(t)=="table" then
     for i,v in pairs(t) do
       if type(v) == "table" then
-        clearTable(v)
+        clear_table(v)
       end
       t[i] = nil
     end
@@ -15,88 +24,6 @@ local function clearTable(t)
   collectgarbage()
   collectgarbage()
 end  
-
----------------------------
--- circular buffer support
----------------------------
-local cbuffer_lib = {}
-
-cbuffer_lib.init = function(cbuf)
-  clearTable(cbuf)
-  cbuf.buffer = {}
-  cbuf.head = 0
-  cbuf.tail = 0
-  cbuf.max = 7
-  cbuf.full = false
-  collectgarbage()
-  collectgarbage()
-  end
-
-cbuffer_lib.size = function(cbuf)
-  if cbuf.full == false then
-    if cbuf.head >= cbuf.tail then
-      return cbuf.head - cbuf.tail
-    else
-      return cbuf.max + cbuf.head - cbuf.tail
-    end
-  end
-  return cbuf.max
-end
-
-cbuffer_lib.available = function(cbuf)
-  if cbuf.full == false then
-    if cbuf.head >= cbuf.tail then
-      return cbuf.max - cbuf.head + cbuf.tail
-    else
-      return cbuf.tail - cbuf.head
-    end
-  end
-  return 0
-end
-
-cbuffer_lib.empty = function(cbuf)
-  return cbuf.full == false and cbuf.head == cbuf.tail
-end
-
-cbuffer_lib.push = function(cbuf,value)
-  -- set value
-  cbuf.buffer[cbuf.head] = value
-  -- advance pointer
-  if cbuf.full == true then
-    cbuf.tail = (cbuf.tail+1)%cbuf.max
-  end
-  cbuf.head = (cbuf.head+1)%cbuf.max
-  cbuf.full = cbuf.head == cbuf.tail
-  collectgarbage()
-  collectgarbage()
-end
-
-cbuffer_lib.pop = function(cbuf)
-  if cbuffer_lib.empty(cbuf) == false then
-      -- get value
-      local value = cbuf.buffer[cbuf.tail]
-      cbuf.buffer[cbuf.tail] = nil
-      -- retreat pointer
-      cbuf.full = false
-      cbuf.tail = (cbuf.tail + 1) % cbuf.max
-      collectgarbage()
-      collectgarbage()
-      return value
-  end
-  return nil
-end
-
-cbuffer_lib.peek = function(cbuf)
-  if cbuffer_lib.empty(cbuf) == false then
-      -- get value
-      return cbuf.buffer[cbuf.tail]
-  end
-  return nil
-end
-
-local sport_tx_buffer = {}
-
-cbuffer_lib.init(sport_tx_buffer)
 
 --[[
   Note: some code from François Perrad's lua-MessagePack
@@ -197,7 +124,7 @@ end
 
 local function update_checksum(msg,byte)
   msg.checksum = msg.checksum + byte -- 0-1FF
-  msg.checksum = msg.checksum + bit32.lshift(msg.checksum,8)
+  msg.checksum = msg.checksum + bit32.rshift(msg.checksum,8)
   msg.checksum = bit32.band(msg.checksum,0xFF)
 end
 
@@ -395,6 +322,7 @@ local function msg_set_float(msg,value,offset)
  msg.payload[offset+2] = bit32.extract(dword,8,8)
  msg.payload[offset+3] = bit32.extract(dword,0,8)
  
+ print(string.format("set_float:%f ->%01X:%01X:%01X:%01X",value,msg.payload[offset+0],msg.payload[offset+1],msg.payload[offset+2],msg.payload[offset+3]))
  msg.len = msg.len + 4
 end
 
@@ -431,7 +359,8 @@ local function bit8_unpack(value,bit_count,bit_offset)
   return bit32.extract(bit32.extract(value,bit_offset,bit_count),0,8)
 end
 
-local function process_sport_rx_data(msg,status,callback,packet)
+local function process_sport_rx_data(msg, status, callback, packet)
+  rx_packet_count = rx_packet_count + 1
   for offset=0,5
   do
     local byte = get_sport_packet_byte(packet,offset)
@@ -444,61 +373,23 @@ local function process_sport_rx_data(msg,status,callback,packet)
   end
 end
 
-local function process_sport_tx_queue(utils)
-  -- keep an active heartbeat by sending 1 empty frame
-  -- this keeps the polling for 0x0D tight
-  --[[
-  if cbuffer_lib.empty(sport_tx_buffer) == true then
-    sportTelemetryPush(SPORT_UPLINK_SENSOR_ID, 0x0, 0x0, 0x0)
-    return
-  end
-  --]]  -- queue is not empty, send up to 10 frames
-  local count = 0
-  while cbuffer_lib.empty(sport_tx_buffer) == false and count < 3
-  do
-    local packet = cbuffer_lib.peek(sport_tx_buffer)
-    if sportTelemetryPush(0x0D, 0x30, packet.data_id, packet.value) then
-      cbuffer_lib.pop(sport_tx_buffer)
-    end
-    count = count + 1
-  end
-end
-
---[[
-local function process_sport_tx_queue(utils)
-  if cbuffer_lib.empty(sport_tx_buffer) == false then
-    local packet = cbuffer_lib.peek(sport_tx_buffer)
-    if sportTelemetryPush(SPORT_UPLINK_SENSOR_ID, SPORT_UPLINK_FRAME, packet.data_id, packet.value) then
-      cbuffer_lib.pop(sport_tx_buffer)
-    end
-  end
-end
---]]
 local function msg_get_size(msg)
   return 1 + math.ceil((msg.len-2)/5)
 end
 
-local function msg_send_ready(msg)
-  return cbuffer_lib.available(sport_tx_buffer) >= msg_get_size(msg)
-end
-
-local function msg_send(msg,utils)
-  -- cannot send if last message still pending
-  if cbuffer_lib.available(sport_tx_buffer) < msg_get_size(msg) then
-    return false
-  end
+local function msg_get_packet_array(msg)
   
   local count = 0
-
+  local packet_array = {}
+  
   local status = {
     parse_state = 0,
     current_rx_seq = 0,
     payload_next_byte = 0
   }
-
+  
   while (count < 1 + math.ceil((31-2)/5) and status.parse_state ~= 7)
   do
-    -- no need to queue sensor_id and frame_id
     local packet = {
       data_id = 0x0000,
       value = 0x00000000
@@ -506,34 +397,99 @@ local function msg_send(msg,utils)
     
     for i=0,5
     do
-      tx_parse(packet,i, msg, status)
+      tx_parse(packet, i, msg, status)
     end
     
-    cbuffer_lib.push(sport_tx_buffer,packet)
-    utils.pushMessage(7,string.format("%d - %02X:%02X:%04X:%08X",count+1,0x0D,0x30,packet.data_id,packet.value),true)
-    --print(string.format("%d - %02X:%02X:%04X:%08X",count+1,0x0D,0x30,packet.data_id,packet.value))
+    packet_array[count] = {packet.data_id, packet.value}
     count=count+1
   end
-  clearTable(status)
-  status=nil
-  
-  collectgarbage()
-  collectgarbage()
-  
-  return true
+  return packet_array
 end
 
+-- packet array is zero based
+local function queue_packet_array(pkts)
+  if packet_array_empty then
+    for i=0,#pkts
+    do
+      packet_array[i] = pkts[i]
+    end
+    packet_array_empty = false
+    packet_array_size = #pkts
+    return true
+  end
+  return false
+end
 
-local function clear_tx_queue()
-  cbuffer_lib.init(sport_tx_buffer)
+local function queue_message(msg)
+  if pending_message == nil then
+    pending_message = msg
+    return true
+  end
+  return false
+end
+
+local function queue_empty()
+  return pending_message == nil
+end
+
+local function process_sport_tx_queue(utils)
+  --[[
+  sportTelemetryPush() returns true if buffer empty
+  
+  if (lua_gettop(L) == 0) {
+    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
+    return 1;
+  }
+  --]]  if sportTelemetryPush() then
+    if packet_array_empty then
+      if pending_message == nil then
+        -- send null frame while waiting
+        sportTelemetryPush(0x0D, 0x0, 0x0, 0x0)
+        return
+      else
+        local pkts = msg_get_packet_array(pending_message)
+        if queue_packet_array(pkts) then
+          clear_table(pending_message)
+          pending_message = nil
+        else
+          return
+        end
+      end
+    end
+    
+    local success = sportTelemetryPush(0x0D, 0x30, packet_array[current_packet_index][1], packet_array[current_packet_index][2]) 
+    if success then
+      tx_packet_count = tx_packet_count + 1
+      
+      -- if last packet is out
+      if current_packet_index == packet_array_size then
+        packet_array_empty = true
+        current_packet_index = 0
+        packet_array_size = 0
+        return
+      end
+      
+      current_packet_index = current_packet_index + 1
+    else
+      utils.pushMessage(3, string.format("TX %d/%d - %04X:%08X", current_packet_index, packet_array_size, packet_array[current_packet_index][1], packet_array[current_packet_index][2]))
+    end
+  end
+end
+
+local function get_tx_packet_count()
+  return tx_packet_count
+end
+
+local function get_rx_packet_count()
+  return rx_packet_count
 end
 
 return {
+  queue_empty=queue_empty,
+  queue_message=queue_message,
+  
   process_sport_rx_data=process_sport_rx_data,
   process_sport_tx_queue=process_sport_tx_queue,
-  
-  msg_send=msg_send,
-  msg_send_ready=msg_send_ready,
   
   msg_get_string=msg_get_string,
   msg_get_float=msg_get_float,
@@ -547,5 +503,7 @@ return {
   
   bit8_pack=bit8_pack,
   bit8_unpack=bit8_unpack,
-  clear_tx_queue=clear_tx_queue
+  
+  get_tx_packet_count=get_tx_packet_count,
+  get_rx_packet_count=get_rx_packet_count,
 }
