@@ -5,28 +5,38 @@ local description = "plane params"
 local parameters = {
 --[[
   Maximum lean angle in all VTOL flight modes
---]]{"Q_ANGLE_MAX",1000,8000,1,"cdeg",},
+--]]
+{"Q_ANGLE_MAX",1000,8000,1,"cdeg",},
 
 --[[
   Loiter maximum lean angle. Set to zero for 2/3 of PSC_ANGLE_MAX or ANGLE_MAX
---]]{"Q_LOIT_ANG_MAX",0,45,1,"deg",},
+--]]
+{"Q_LOIT_ANG_MAX",0,45,1,"deg",},
 
 --[[
   This provides a set of additional control options for quadplanes. LevelTransition means that the wings should be held level to within LEVEL_ROLL_LIMIT degrees during transition to fixed wing flight, and the vehicle will not use the vertical lift motors to climb during the transition. If AllowFWTakeoff bit is not set then fixed wing takeoff on quadplanes will instead perform a VTOL takeoff. If AllowFWLand bit is not set then fixed wing land on quadplanes will instead perform a VTOL land. If respect takeoff frame is not set the vehicle will interpret all takeoff waypoints as an altitude above the corrent position. When Use QRTL is set it will replace QLAND with QRTL for failsafe actions when in VTOL modes.
---]]{"Q_OPTIONS",{"None","LVL","QRTL","FWAppr","LVL+QRTL","ALL"},{0,1,32,16,33,49},},
+--]]
+{"Q_OPTIONS",0,1000000,0:LevelTransition,1:AllowFWTakeoff,2:AllowFWLand,3:Respect takeoff frame types,4:Use a fixed wing approach for VTOL landings,5:Use QRTL instead of QLAND for failsafe when in VTOL modes,6:Use idle governor in MANUAL,7:QAssist force enabled,8:Tailsitter QAssist motors only,"",},
 
 --[[
   If this is set to 1 then an RTL will change to QRTL when within RTL_RADIUS meters of the RTL destination
---]]{"Q_RTL_MODE",{"Disabled","Enabled",},{0,1,}},
+--]]
+{"Q_RTL_MODE",{"Disabled","Enabled",},{0,1,}},
 
 --[[
   This is the angle at which tailsitter aircraft will change from VTOL control to fixed wing control.
---]]{"Q_TAILSIT_ANGLE",5,80,1,"",},
+--]]
+{"Q_TAILSIT_ANGLE",5,80,1,"",},
 
 --[[
   This sets the compensation for the pitch angle trim difference between forward and vertical flight pitch, NOTE! this is relative to forward flight trim not mounting locaiton. For tailsitters this is relative to a baseline of 90 degrees.
---]]{"Q_TRIM_PITCH",-10,10,0.1,"deg",},
+--]]
+{"Q_TRIM_PITCH",-10,10,0.1,"deg",},
+
+--[[
+  This sets which parameter or set of parameters will be tuned. Values greater than 100 indicate a set of parameters rather than a single parameter. Parameters less than 50 are for QuadPlane vertical lift motors only.
+--]]
+{"TUNE_PARAM",{"None","RateRollPI","RateRollP","RateRollI","RateRollD","RatePitchPI","RatePitchP","RatePitchI","RatePitchD","RateYawPI","RateYawP","RateYawI","RateYawD","AngleRollP","AnglePitchP","AngleYawP","PosXYP","PosZP","VelXYP","VelXYI","VelZP","AccelZP","AccelZI","AccelZD",},{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,}},
 
 }
 return { list = parameters,description = description}
-

@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ParametersPage xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <name>copter params</name>
+  <version>1.0.12.1</version>
+  <vehicle>copter</vehicle>
+  <dateOfCreation>2020-08-01T18:53:18.0927554+02:00</dateOfCreation>
+  <author />
+  <radio>HORUS class</radio>
+  <parameters>
+    <MavlinkParameter>
+      <valueList>
+        <MPValue>
+          <_code>0</_code>
+          <_label>None</_label>
+          <code>0</code>
+          <label>None</label>
+        </MPValue>
+        <MPValue>
+          <_code>1</_code>
+          <_label>Stab Roll/Pitch kP</_label>
+          <code>1</code>
+          <label>Stab Roll/Pitch kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>4</_code>
+          <_label>Rate Roll/Pitch kP</_label>
+          <code>4</code>
+          <label>Rate Roll/Pitch kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>5</_code>
+          <_label>Rate Roll/Pitch kI</_label>
+          <code>5</code>
+          <label>Rate Roll/Pitch kI</label>
+        </MPValue>
+        <MPValue>
+          <_code>21</_code>
+          <_label>Rate Roll/Pitch kD</_label>
+          <code>21</code>
+          <label>Rate Roll/Pitch kD</label>
+        </MPValue>
+        <MPValue>
+          <_code>3</_code>
+          <_label>Stab Yaw kP</_label>
+          <code>3</code>
+          <label>Stab Yaw kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>6</_code>
+          <_label>Rate Yaw kP</_label>
+          <code>6</code>
+          <label>Rate Yaw kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>26</_code>
+          <_label>Rate Yaw kD</_label>
+          <code>26</code>
+          <label>Rate Yaw kD</label>
+        </MPValue>
+        <MPValue>
+          <_code>56</_code>
+          <_label>Rate Yaw Filter</_label>
+          <code>56</code>
+          <label>Rate Yaw Filter</label>
+        </MPValue>
+        <MPValue>
+          <_code>55</_code>
+          <_label>Motor Yaw Headroom</_label>
+          <code>55</code>
+          <label>Motor Yaw Headroom</label>
+        </MPValue>
+        <MPValue>
+          <_code>14</_code>
+          <_label>AltHold kP</_label>
+          <code>14</code>
+          <label>AltHold kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>7</_code>
+          <_label>Throttle Rate kP</_label>
+          <code>7</code>
+          <label>Throttle Rate kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>34</_code>
+          <_label>Throttle Accel kP</_label>
+          <code>34</code>
+          <label>Throttle Accel kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>35</_code>
+          <_label>Throttle Accel kI</_label>
+          <code>35</code>
+          <label>Throttle Accel kI</label>
+        </MPValue>
+        <MPValue>
+          <_code>36</_code>
+          <_label>Throttle Accel kD</_label>
+          <code>36</code>
+          <label>Throttle Accel kD</label>
+        </MPValue>
+        <MPValue>
+          <_code>12</_code>
+          <_label>Loiter Pos kP</_label>
+          <code>12</code>
+          <label>Loiter Pos kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>22</_code>
+          <_label>Velocity XY kP</_label>
+          <code>22</code>
+          <label>Velocity XY kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>28</_code>
+          <_label>Velocity XY kI</_label>
+          <code>28</code>
+          <label>Velocity XY kI</label>
+        </MPValue>
+        <MPValue>
+          <_code>10</_code>
+          <_label>WP Speed</_label>
+          <code>10</code>
+          <label>WP Speed</label>
+        </MPValue>
+        <MPValue>
+          <_code>25</_code>
+          <_label>Acro RollPitch kP</_label>
+          <code>25</code>
+          <label>Acro RollPitch kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>40</_code>
+          <_label>Acro Yaw kP</_label>
+          <code>40</code>
+          <label>Acro Yaw kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>45</_code>
+          <_label>RC Feel</_label>
+          <code>45</code>
+          <label>RC Feel</label>
+        </MPValue>
+        <MPValue>
+          <_code>13</_code>
+          <_label>Heli Ext Gyro</_label>
+          <code>13</code>
+          <label>Heli Ext Gyro</label>
+        </MPValue>
+        <MPValue>
+          <_code>38</_code>
+          <_label>Declination</_label>
+          <code>38</code>
+          <label>Declination</label>
+        </MPValue>
+        <MPValue>
+          <_code>39</_code>
+          <_label>Circle Rate</_label>
+          <code>39</code>
+          <label>Circle Rate</label>
+        </MPValue>
+        <MPValue>
+          <_code>41</_code>
+          <_label>RangeFinder Gain</_label>
+          <code>41</code>
+          <label>RangeFinder Gain</label>
+        </MPValue>
+        <MPValue>
+          <_code>46</_code>
+          <_label>Rate Pitch kP</_label>
+          <code>46</code>
+          <label>Rate Pitch kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>47</_code>
+          <_label>Rate Pitch kI</_label>
+          <code>47</code>
+          <label>Rate Pitch kI</label>
+        </MPValue>
+        <MPValue>
+          <_code>48</_code>
+          <_label>Rate Pitch kD</_label>
+          <code>48</code>
+          <label>Rate Pitch kD</label>
+        </MPValue>
+        <MPValue>
+          <_code>49</_code>
+          <_label>Rate Roll kP</_label>
+          <code>49</code>
+          <label>Rate Roll kP</label>
+        </MPValue>
+        <MPValue>
+          <_code>50</_code>
+          <_label>Rate Roll kI</_label>
+          <code>50</code>
+          <label>Rate Roll kI</label>
+        </MPValue>
+        <MPValue>
+          <_code>51</_code>
+          <_label>Rate Roll kD</_label>
+          <code>51</code>
+          <label>Rate Roll kD</label>
+        </MPValue>
+        <MPValue>
+          <_code>52</_code>
+          <_label>Rate Pitch FF</_label>
+          <code>52</code>
+          <label>Rate Pitch FF</label>
+        </MPValue>
+        <MPValue>
+          <_code>53</_code>
+          <_label>Rate Roll FF</_label>
+          <code>53</code>
+          <label>Rate Roll FF</label>
+        </MPValue>
+        <MPValue>
+          <_code>54</_code>
+          <_label>Rate Yaw FF</_label>
+          <code>54</code>
+          <label>Rate Yaw FF</label>
+        </MPValue>
+        <MPValue>
+          <_code>57</_code>
+          <_label>Winch</_label>
+          <code>57</code>
+          <label>Winch</label>
+        </MPValue>
+        <MPValue>
+          <_code>58</_code>
+          <_label>SysID Magnitude</_label>
+          <code>58</code>
+          <label>SysID Magnitude</label>
+        </MPValue>
+      </valueList>
+      <group>ArduCopter</group>
+      <name>TUNE</name>
+      <values>0:None 1:Stab Roll/Pitch kP 4:Rate Roll/Pitch kP 5:Rate Roll/Pitch kI 21:Rate Roll/Pitch kD 3:Stab Yaw kP 6:Rate Yaw kP 26:Rate Yaw kD 56:Rate Yaw Filter 55:Motor Yaw Headroom 14:AltHold kP 7:Throttle Rate kP 34:Throttle Accel kP 35:Throttle Accel kI 36:Throttle Accel kD 12:Loiter Pos kP 22:Velocity XY kP 28:Velocity XY kI 10:WP Speed 25:Acro RollPitch kP 40:Acro Yaw kP 45:RC Feel 13:Heli Ext Gyro 38:Declination 39:Circle Rate 41:RangeFinder Gain 46:Rate Pitch kP 47:Rate Pitch kI 48:Rate Pitch kD 49:Rate Roll kP 50:Rate Roll kI 51:Rate Roll kD 52:Rate Pitch FF 53:Rate Roll FF 54:Rate Yaw FF 57:Winch 58:SysID Magnitude </values>
+      <description>Controls which parameters (normally PID gains) are being tuned with transmitter's channel 6 knob</description>
+    </MavlinkParameter>
+    <MavlinkParameter>
+      <valueList />
+      <group>ArduCopter</group>
+      <name>TUNE_MAX</name>
+      <description>Maximum value that the parameter currently being tuned with the transmitter's channel 6 knob will be set to</description>
+    </MavlinkParameter>
+    <MavlinkParameter>
+      <valueList />
+      <group>ArduCopter</group>
+      <name>TUNE_MIN</name>
+      <description>Minimum value that the parameter currently being tuned with the transmitter's channel 6 knob will be set to</description>
+    </MavlinkParameter>
+  </parameters>
+</ParametersPage>

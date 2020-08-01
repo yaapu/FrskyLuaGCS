@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ParametersPage xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <name>plane params</name>
+  <version>1.0.12.1</version>
+  <vehicle>plane</vehicle>
+  <dateOfCreation>2020-08-01T18:58:12.1071278+02:00</dateOfCreation>
+  <author />
+  <radio>HORUS class</radio>
+  <parameters>
+    <MavlinkParameter>
+      <valueList>
+        <MPValue>
+          <_code>0</_code>
+          <_label>None</_label>
+          <code>0</code>
+          <label>None</label>
+        </MPValue>
+        <MPValue>
+          <_code>50</_code>
+          <_label>FixedWingRollP</_label>
+          <code>50</code>
+          <label>FixedWingRollP</label>
+        </MPValue>
+        <MPValue>
+          <_code>51</_code>
+          <_label>FixedWingRollI</_label>
+          <code>51</code>
+          <label>FixedWingRollI</label>
+        </MPValue>
+        <MPValue>
+          <_code>52</_code>
+          <_label>FixedWingRollD</_label>
+          <code>52</code>
+          <label>FixedWingRollD</label>
+        </MPValue>
+        <MPValue>
+          <_code>53</_code>
+          <_label>FixedWingRollFF</_label>
+          <code>53</code>
+          <label>FixedWingRollFF</label>
+        </MPValue>
+        <MPValue>
+          <_code>54</_code>
+          <_label>FixedWingPitchP</_label>
+          <code>54</code>
+          <label>FixedWingPitchP</label>
+        </MPValue>
+        <MPValue>
+          <_code>55</_code>
+          <_label>FixedWingPitchI</_label>
+          <code>55</code>
+          <label>FixedWingPitchI</label>
+        </MPValue>
+        <MPValue>
+          <_code>56</_code>
+          <_label>FixedWingPitchD</_label>
+          <code>56</code>
+          <label>FixedWingPitchD</label>
+        </MPValue>
+        <MPValue>
+          <_code>57</_code>
+          <_label>FixedWingPitchFF</_label>
+          <code>57</code>
+          <label>FixedWingPitchFF</label>
+        </MPValue>
+        <MPValue>
+          <_code>101</_code>
+          <_label>Set_RateRollPitch</_label>
+          <code>101</code>
+          <label>Set_RateRollPitch</label>
+        </MPValue>
+        <MPValue>
+          <_code>102</_code>
+          <_label>Set_RateRoll</_label>
+          <code>102</code>
+          <label>Set_RateRoll</label>
+        </MPValue>
+        <MPValue>
+          <_code>103</_code>
+          <_label>Set_RatePitch</_label>
+          <code>103</code>
+          <label>Set_RatePitch</label>
+        </MPValue>
+        <MPValue>
+          <_code>104</_code>
+          <_label>Set_RateYaw</_label>
+          <code>104</code>
+          <label>Set_RateYaw</label>
+        </MPValue>
+        <MPValue>
+          <_code>105</_code>
+          <_label>Set_AngleRollPitch</_label>
+          <code>105</code>
+          <label>Set_AngleRollPitch</label>
+        </MPValue>
+        <MPValue>
+          <_code>106</_code>
+          <_label>Set_VelXY</_label>
+          <code>106</code>
+          <label>Set_VelXY</label>
+        </MPValue>
+        <MPValue>
+          <_code>107</_code>
+          <_label>Set_AccelZ</_label>
+          <code>107</code>
+          <label>Set_AccelZ</label>
+        </MPValue>
+      </valueList>
+      <min />
+      <max />
+      <group>TUNE_</group>
+      <name>TUNE_PARAM</name>
+      <range />
+      <values>0:None,50:FixedWingRollP,51:FixedWingRollI,52:FixedWingRollD,53:FixedWingRollFF,54:FixedWingPitchP,55:FixedWingPitchI,56:FixedWingPitchD,57:FixedWingPitchFF,101:Set_RateRollPitch,102:Set_RateRoll,103:Set_RatePitch,104:Set_RateYaw,105:Set_AngleRollPitch,106:Set_VelXY,107:Set_AccelZ</values>
+      <description>This sets which parameter or set of parameters will be tuned. Values greater than 100 indicate a set of parameters rather than a single parameter. Parameters less than 50 are for QuadPlane vertical lift motors only.</description>
+    </MavlinkParameter>
+    <MavlinkParameter>
+      <valueList />
+      <group>TUNE_</group>
+      <name>TUNE_RANGE</name>
+      <description>This sets the range over which tuning will change a parameter. A value of 2 means the tuning parameter will go from 0.5 times the start value to 2x the start value over the range of the tuning channel</description>
+    </MavlinkParameter>
+  </parameters>
+</ParametersPage>
