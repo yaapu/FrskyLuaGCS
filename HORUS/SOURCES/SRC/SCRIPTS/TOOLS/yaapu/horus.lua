@@ -42,6 +42,8 @@
 ---------------------
 -- DEV FEATURE CONFIG
 ---------------------
+-- enable pages debug
+--#define DEBUG_PAGES
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
@@ -49,10 +51,10 @@
 -- cache params pages
 --#define 
 -- enable full telemetry debug
---#define DEBUG_SPORT
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
+--#define MEMDEBUG
 -- enable dev code
 --#define DEV
 -- use radio channels imputs to generate fake telemetry data
@@ -63,7 +65,9 @@
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
+--#define HUDRATE
 -- calc and show telemetry process rate
+--#define BGTELERATE
 
 
 
@@ -82,6 +86,7 @@
 ]]
 
 
+
 --[[
 0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
 1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
@@ -92,6 +97,7 @@
 6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
 7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
 --]]
+
 local mavSeverity = {}
 
 mavSeverity[0]="EMR"
@@ -135,6 +141,7 @@ mavSeverity[7]="DBG"
 	MAV_TYPE_PARAFOIL=28,             /* Steerable, nonrigid airfoil | */
 	MAV_TYPE_DODECAROTOR=29,          /* Dodecarotor | */
 ]]
+
 local frameType = nil
 local frameTypes = {}
 -- copter
@@ -238,6 +245,7 @@ telemetry.pitch = 0
 telemetry.range = 0 
 -- PARAMS
 telemetry.frameType = -1
+telemetry.frame = nil
 telemetry.batt1Capacity = 0
 telemetry.batt2Capacity = 0
 -- GPS
@@ -348,7 +356,7 @@ local function drawWarning(text)
   lcd.drawFilledRectangle(50,76, 380, 80, CUSTOM_COLOR)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
   lcd.drawText(65, 80, text, DBLSIZE+CUSTOM_COLOR)
-  lcd.drawText(130, 130, "Yaapu LuaGCS 0.9-dev", SMLSIZE+CUSTOM_COLOR)
+  lcd.drawText(130, 130, "Yaapu LuaGCS 1.0", SMLSIZE+CUSTOM_COLOR)
 end
 
 local function drawBars(page, menu)
@@ -360,7 +368,8 @@ local function drawBars(page, menu)
   local itemIdx = string.format("%d/%d",menu.selectedItem,#page.list)
   lcd.setColor(CUSTOM_COLOR,COLOR_WHITE)
   lcd.drawText(LCD_W,190,itemIdx,CUSTOM_COLOR+RIGHT)
-  --]]end
+  --]]
+end
 
 local function drawTopBar(status,telemetryEnabled,telemetry)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
@@ -418,9 +427,10 @@ local function drawCommandItem(items,idx,menu,msgRequestStatus,mavResult)
   end
 end
 
-local function drawListItem(items,idx,menu,msgRequestStatus)
+local function drawListItem(items, idx, menu, msgRequestStatus, configMenu)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)    
   lcd.drawText(2,18 + (idx-menu.offset-1)*16, items[idx][1],CUSTOM_COLOR+SMLSIZE)
+  
   if idx == menu.selectedItem then
     if menu.editSelected then
         flags = INVERS+BLINK
@@ -430,20 +440,30 @@ local function drawListItem(items,idx,menu,msgRequestStatus)
   else
     flags = 0
   end
+  
+  local xPos = 165
+  
+  if configMenu then
+    flags = flags + RIGHT
+    xPos = LCD_W - 2
+  end
+  
   if items[idx].value == nil then
-    lcd.drawText(165,18 + (idx-menu.offset-1)*16, "--------",flags+CUSTOM_COLOR+SMLSIZE)
+    lcd.drawText(xPos,18 + (idx-menu.offset-1)*16, "--------",flags+CUSTOM_COLOR+SMLSIZE)
   else
     if type(items[idx][2]) == "table" then -- COMBO
       local option = tostring(items[idx][2][items[idx].value])
       if #option > 25 then
         option = string.sub(option,1,25)
       end
-      lcd.drawText(165,18 + (idx-menu.offset-1)*16, option ,flags+CUSTOM_COLOR+SMLSIZE)
+      lcd.drawText(xPos,18 + (idx-menu.offset-1)*16, option ,flags+CUSTOM_COLOR+SMLSIZE)
     else
-      lcd.drawText(165,18 + (idx-menu.offset-1)*16, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+CUSTOM_COLOR+SMLSIZE)
+      lcd.drawText(xPos,18 + (idx-menu.offset-1)*16, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+CUSTOM_COLOR+SMLSIZE)
     end
   end
-  lcd.drawText(LCD_W-2,18 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
+  if not configMenu then
+    lcd.drawText(LCD_W-2,18 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
+  end
 end
 
 local function drawPanelItem(panel,idx,menu,msgShortRequestStatus)

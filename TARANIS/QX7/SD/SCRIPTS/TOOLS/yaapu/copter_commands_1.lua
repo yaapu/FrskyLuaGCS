@@ -4,7 +4,8 @@ local description = "Copter Commands"
   2 CMD_ID
   2 options names,  
   3 params array, {0,0,0,0,0,0,0} up to 7 parameters
---]]--[[
+--]]
+--[[
   enum control_mode_t {
       STABILIZE =     0,  // manual airframe angle with manual throttle
       ACRO =          1,  // manual body-frame angular rate with manual throttle
@@ -31,7 +32,8 @@ local description = "Copter Commands"
       SYSTEMID  =    25,  // System ID mode produces automated system identification signals in the controllers
       AUTOROTATE =   26,  // Autonomous autorotation
   };
---]]local commands = {
+--]]
+local commands = {
   {"CALIBRATE"  , {"Airspeed and Baro"}, { {0,0,1} }, cmd_id=241, value=1 },
   {"FENCE ENABLE"  , {"Disable","Enable","Floor Only"}, { {0}, {1}, {2} }, cmd_id=207, value=1 },
   {"REBOOT"  , {"Autopilot","Onboard Computer"}, { {1,0}, {0,1} }, cmd_id=246, value=1 },

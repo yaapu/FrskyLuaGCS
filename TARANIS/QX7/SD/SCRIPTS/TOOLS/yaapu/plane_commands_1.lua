@@ -4,7 +4,8 @@ local description = "Plane Commands"
   2 CMD_ID
   2 options names,  
   3 params array, {0,0,0,0,0,0,0} up to 7 parameters
---]]--[[
+--]]
+--[[
 enum FlightMode {
     MANUAL        = 0,
     CIRCLE        = 1,
@@ -30,13 +31,14 @@ enum FlightMode {
     QAUTOTUNE	    = 22,
     QACRO         = 23
 };
---]]local commands = {
+--]]
+local commands = {
   {"CALIBRATE"  , {"Airspeed and Baro"}, { {0,0,1} }, cmd_id=241, value=1 },
   {"FENCE ENABLE"  , {"Disable","Enable","Floor Only"}, { {0}, {1}, {2} }, cmd_id=207, value=1 },
   {"REBOOT"  , {"Autopilot","Onboard Computer"}, { {1,0}, {0,1} }, cmd_id=246, value=1 },
   {"MODE"  ,
-    { "MANUAL","CIRCLE", "STABILIZE","TRAINING","ACRO", "FBWA","FBWB","CRUISE","AUTOTUNE","AUTO","RTL","LOITER","TAKEOFF","AVOID_ADSB","GUIDED","QSTABILIZE","QHOVER","QLOITER","QLAND","QRTL","QAUTOTUNE","QACRO"}, 
-    { {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {10}, {11}, {12}, {13}, {14}, {15}, {17}, {18}, {19}, {20}, {21}, {22}, {23}, }, 
+    { "MANUAL","CIRCLE", "STABILIZE","TRAINING","ACRO", "FBWA","FBWB","CRUISE","AUTOTUNE","AUTO","RTL","LOITER","TAKEOFF","AVOID_ADSB","GUIDED","QSTABILIZE","QHOVER","QLOITER","QLAND","QRTL","QAUTOTUNE","QACRO","THERMAL"}, 
+    { {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {10}, {11}, {12}, {13}, {14}, {15}, {17}, {18}, {19}, {20}, {21}, {22}, {23}, {24}}, 
     cmd_id=176, 
     value=1
   },

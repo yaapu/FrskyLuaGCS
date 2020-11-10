@@ -1,7 +1,6 @@
 
 
 
---#define DEBUG_SPORT
 
 local current_packet_index = 0
 local packet_array_empty = true
@@ -10,6 +9,7 @@ local packet_array_size = 0
 local tx_packet_count = 0
 local rx_packet_count = 0
 local pending_message = nil
+local sensor_flip_flop = true
 
 local function clear_table(t)
   if type(t)=="table" then
@@ -30,7 +30,8 @@ end
   
   This function packs a lua number into a 4 bytes
   single precision IEEE 754 floating point representation
---]]local function pack_float(n)
+--]]
+local function pack_float(n)
     if n == 0.0 then return 0.0 end
 
     local sign = 0
@@ -71,7 +72,8 @@ end
   This function unpacks a 
   4 bytes single precision IEEE 754 floating point representation
   into a lua double
---]]local function unpack_float(dword)
+--]]
+local function unpack_float(dword)
     if dword == 0 then return 0.0 end
      -- match STM32 endianess
     local b1 = bit32.extract(dword,0,8)
@@ -322,7 +324,7 @@ local function msg_set_float(msg,value,offset)
  msg.payload[offset+2] = bit32.extract(dword,8,8)
  msg.payload[offset+3] = bit32.extract(dword,0,8)
  
- print(string.format("set_float:%f ->%01X:%01X:%01X:%01X",value,msg.payload[offset+0],msg.payload[offset+1],msg.payload[offset+2],msg.payload[offset+3]))
+ --print(string.format("set_float:%f ->%01X:%01X:%01X:%01X",value,msg.payload[offset+0],msg.payload[offset+1],msg.payload[offset+2],msg.payload[offset+3]))
  msg.len = msg.len + 4
 end
 
@@ -432,19 +434,13 @@ local function queue_empty()
   return pending_message == nil
 end
 
-local function process_sport_tx_queue(utils)
-  --[[
-  sportTelemetryPush() returns true if buffer empty
-  
-  if (lua_gettop(L) == 0) {
-    lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-    return 1;
-  }
-  --]]  if sportTelemetryPush() then
+local function process_sport_tx_queue(utils, conf)
+  local uplink_sensor = 0x0D
+  if sportTelemetryPush() then
     if packet_array_empty then
       if pending_message == nil then
         -- send null frame while waiting
-        sportTelemetryPush(0x0D, 0x0, 0x0, 0x0)
+        sportTelemetryPush(uplink_sensor, 0x0, 0x0, 0x0)
         return
       else
         local pkts = msg_get_packet_array(pending_message)
@@ -456,8 +452,10 @@ local function process_sport_tx_queue(utils)
         end
       end
     end
-    
-    local success = sportTelemetryPush(0x0D, 0x30, packet_array[current_packet_index][1], packet_array[current_packet_index][2]) 
+    local success = sportTelemetryPush(uplink_sensor, 0x30, packet_array[current_packet_index][1], packet_array[current_packet_index][2]) 
+    if conf.enableDebug == true then
+      utils.pushMessage(success and 7 or 3, string.format("TX: %d - %04X:%08X pkts:%d, size:%d", current_packet_index, packet_array[current_packet_index][1], packet_array[current_packet_index][2], tx_packet_count, packet_array_size+1), true)
+    end
     if success then
       tx_packet_count = tx_packet_count + 1
       
@@ -471,9 +469,19 @@ local function process_sport_tx_queue(utils)
       
       current_packet_index = current_packet_index + 1
     else
-      utils.pushMessage(3, string.format("TX %d/%d - %04X:%08X", current_packet_index, packet_array_size, packet_array[current_packet_index][1], packet_array[current_packet_index][2]))
+      if conf.enableDebug == true then
+        utils.pushMessage(3, string.format("TX: %d/%d - %04X:%08X", current_packet_index, packet_array_size, packet_array[current_packet_index][1], packet_array[current_packet_index][2]), true)
+      end
     end
   end
+end
+
+local function clear_sport_tx_queue()
+  clear_table(pending_message)
+  pending_message = nil
+  packet_array_empty = true
+  current_packet_index = 0
+  packet_array_size = 0
 end
 
 local function get_tx_packet_count()
@@ -490,6 +498,7 @@ return {
   
   process_sport_rx_data=process_sport_rx_data,
   process_sport_tx_queue=process_sport_tx_queue,
+  clear_sport_tx_queue=clear_sport_tx_queue,
   
   msg_get_string=msg_get_string,
   msg_get_float=msg_get_float,

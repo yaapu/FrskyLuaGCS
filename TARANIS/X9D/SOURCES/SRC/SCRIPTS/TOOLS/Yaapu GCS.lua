@@ -42,6 +42,8 @@
 ---------------------
 -- DEV FEATURE CONFIG
 ---------------------
+-- enable pages debug
+--#define DEBUG_PAGES
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
@@ -49,10 +51,10 @@
 -- cache params pages
 --#define CACHE_PARAMS
 -- enable full telemetry debug
---#define DEBUG_SPORT
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
+--#define MEMDEBUG
 -- enable dev code
 --#define DEV
 -- use radio channels imputs to generate fake telemetry data
@@ -63,7 +65,9 @@
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
+--#define HUDRATE
 -- calc and show telemetry process rate
+--#define BGTELERATE
 
 
 
@@ -85,7 +89,7 @@
 
 
 
---#define DEBUG_SPORT
+
 --[[
 0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
 1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
@@ -96,6 +100,7 @@
 6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
 7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
 --]]
+
 local mavSeverity = {}
 
 mavSeverity[0]="EMR"
@@ -139,6 +144,7 @@ mavSeverity[7]="DBG"
 	MAV_TYPE_PARAFOIL=28,             /* Steerable, nonrigid airfoil | */
 	MAV_TYPE_DODECAROTOR=29,          /* Dodecarotor | */
 ]]
+
 local frameType = nil
 local frameTypes = {}
 -- copter
@@ -190,17 +196,15 @@ local telemetry = {
 
 
 
-local hudcounter = 0
-local hudrate = 0
-local hudstart = 0
 
-local maxmem = 0
 
 --------------------------------------------------------------------------------
 -- CONFIGURATION MENU
 --------------------------------------------------------------------------------
 local conf = {
-  language = "en"
+  language = "en",
+  disableMsgBeep = 2,
+  enableDebug = false
 }
 
 local msgRequestStatus = {
@@ -230,26 +234,14 @@ local frame = {}
 local drawLib = {}
 
 --------------------
--- params pages
+-- pages
 --------------------
-local params = {}
-local paramsPages = {}
-
---------------------
--- commands pages
---------------------
-local commands = {}
-local commandsPages = {}
+local pages = {}
+local pageFiles = {}
 
 -- parameters used to check specific vehicle params at boot
 local globalParams = {}
 local globalParamsDone = false
-
---------------------
--- tuning page
---------------------
-local tuning = {}
-local tuningPages = {}
 
 local basePath = "/SCRIPTS/TOOLS/yaapu/"
 local libBasePath = basePath
@@ -293,6 +285,7 @@ local page = 1
 
 utils.doLibrary = function(filename)
   local f = assert(loadScript(libBasePath..filename..".lua"))
+  -- recover memory
   collectgarbage()
   collectgarbage()
   return f()
@@ -383,6 +376,7 @@ end
 local function getDecimalCount(num)
   local strNum = tostring(num)
   local pos = string.find(strNum,"%.")
+  -- recover memory
   collectgarbage()
   collectgarbage()
   return pos == nil and 0 or #strNum - pos
@@ -395,21 +389,27 @@ local drawLine = nil
 
 
 local function writeItem(idxToSave)
-  if page <= #tuningPages then
-    tuning[page].list[idxToSave].status = 2
-  elseif page <= ( #tuningPages + #paramsPages ) then
-    params[page - #tuningPages].list[idxToSave].status = 2
+  if pages[page].listType == 4 then
+    -- config menu changed, save to file
+    local item = pages[page].list[idxToSave]
+    if type(item[2]) == "table" then -- COMBO
+      conf[item.property] = item[3][item.value]
+    else
+    end
   else
-    commands[page - (#tuningPages + #paramsPages)].list[idxToSave].result = nil
-    commands[page - (#tuningPages + #paramsPages)].list[idxToSave].status = 2
+    pages[page].list[idxToSave].status = 2
+    if pages[page].listType == 3 then
+      -- commands
+      pages[page].list[idxToSave].result = nil
+    end
   end
   -- force this item as next to be processed
   idx = idxToSave
 end
 
-local function drawList(params,event)
-  local items = params.list
-  drawLib.drawBars(params,menu)
+local function drawList(myPage, event)
+  local items = myPage.list
+  drawLib.drawBars(myPage, menu)
   if event == EVT_ENTER_BREAK then
     if menu.editSelected == true then
       -- confirm modified value
@@ -455,17 +455,17 @@ local function drawList(params,event)
     menu.offset =  math.max(0,#items - 7)
   end
   
-  if params.listType == nil then -- paramters
+  if myPage.listType == nil or myPage.listType == 4 then -- paramters or config menu
+  -- draw list
+    for m=1+menu.offset,math.min(#items,7+menu.offset) do
+      drawLib.drawListItem(items, m, menu, msgRequestStatus, myPage.listType == 4)
+    end
+  elseif myPage.listType == 2 then -- tuning panels
   -- draw list
     for m=1+menu.offset,math.min(#items,7+menu.offset) do
       drawLib.drawListItem(items,m,menu,msgRequestStatus)
     end
-  elseif params.listType == 2 then -- tuning panels
-  -- draw list
-    for m=1+menu.offset,math.min(#items,7+menu.offset) do
-      drawLib.drawListItem(items,m,menu,msgRequestStatus)
-    end
-  elseif params.listType == 3 then -- commands
+  elseif myPage.listType == 3 then -- commands
   -- draw list
     for m=1+menu.offset,math.min(#items,7+menu.offset) do
       drawLib.drawCommandItem(items,m,menu,msgRequestStatus,mavResult)
@@ -479,17 +479,20 @@ local function processMavliteMessage(msg)
   if msg.msgid == 23 then
     local param_value = mavLib.msg_get_float(msg,0)
     local param_name = mavLib.msg_get_string(msg,4)
-    utils.pushMessage(7,string.format("RX: ID=%d, %s : %f",msg.msgid,param_name,param_value))
+    if conf.enableDebug == true then
+      utils.pushMessage(7,string.format("RX: ID=%d, %s : %f",msg.msgid,param_name,param_value), true)
+    end
   elseif msg.msgid == 22 then -- PARAM_VALUE
     local param_value = mavLib.msg_get_float(msg,0)
     local param_name = mavLib.msg_get_string(msg,4)
-    utils.pushMessage(7,string.format("RX: ID=%d, %s : %f",msg.msgid,param_name,param_value))
+    if conf.enableDebug == true then
+      utils.pushMessage(7,string.format("RX: ID=%d, %s : %f",msg.msgid,param_name,param_value), true)
+    end
     local item = getItemByName(globalParams,param_name)
     
     if item == nil then
-      local paramsPage = (page <= #tuningPages and tuning[page] or params[page-#tuningPages])
-      if paramsPage  ~= nil then
-        item = getItemByName(page <= #tuningPages and tuning[page].list or params[page-#tuningPages].list,param_name)
+      if pages[page]  ~= nil then
+        item = getItemByName(pages[page].list, param_name)
       end
     end
     
@@ -524,14 +527,16 @@ local function processMavliteMessage(msg)
         end
       end
     end
-    
+    -- recover memory
     collectgarbage()
     collectgarbage()
   elseif msg.msgid == 77 then -- CMD_ACK
     local cmd_id = mavLib.msg_get_uint16(msg,0)
     local mav_result = mavLib.msg_get_uint8(msg,2)
-    utils.pushMessage(7,string.format("RX: ID=%d, CMD=%d, RESULT=%d",msg.msgid, cmd_id, mav_result))
-    local item = getItemByCommandID( commands[page-(#tuningPages + #paramsPages)].list, cmd_id)
+    if conf.enableDebug == true then
+      utils.pushMessage(7,string.format("RX: ID=%d, CMD=%d, RESULT=%d",msg.msgid, cmd_id, mav_result), true)
+    end
+    local item = getItemByCommandID( pages[page].list, cmd_id)
     
     if item ~= nil then
       -- update status
@@ -548,10 +553,11 @@ local function formatMessage(severity,msg)
     clippedMsg = string.sub(msg,1,38)
     msg = nil
   end
+  -- recover memory
   collectgarbage()
   collectgarbage()
-  
   local txt = string.format("%02d:%s %s", status.messageCount, mavSeverity[severity], clippedMsg)
+  -- recover memory
   collectgarbage()
   collectgarbage()
   return txt
@@ -562,6 +568,7 @@ end
 utils.pushMessage = function(severity, msg, silent)
   status.messages[1][1] = formatMessage(severity,msg)
   status.messageCount = status.messageCount + 1
+  -- recover memory
   collectgarbage()
   collectgarbage()
 end
@@ -577,6 +584,7 @@ local function processTelemetry(sp)
         c = bit32.extract(sp.value,i*8,7)
         if c ~= 0 then
           status.msgBuffer = status.msgBuffer .. string.char(c)
+          -- recover memory
           collectgarbage()
           collectgarbage()
         else
@@ -661,37 +669,29 @@ local function createMsgCommandLong(cmdId,params)
       mavLib.msg_set_float(msg,params[i],3+(4*(i-1)))
     end
     
-    collectgarbage()
-    collectgarbage()
+  collectgarbage()
+  collectgarbage()
     
     return msg
 end
 
-local function initParams(items)
+local function initPageItems(myPage)
+  local items = myPage.list
+  
   for idx=1,#items
   do
-    if type(items[idx][2]) ~= "table" and items[idx].value ~= nil then
-      -- make all digits visible even if the increment has a lower resolution!
-      local precision = items[idx].label == nil and 6 or 4
-      items[idx].fstring = "%.0"..tostring(math.min(precision,math.max(getDecimalCount(items[idx].value),math.max(1,getDecimalCount(items[idx][4]))))).."f %s"
-      collectgarbage()
-      collectgarbage()
+    if myPage.listType ~= 3 then
+      if type(items[idx][2]) ~= "table" and items[idx].value ~= nil then
+        -- make all digits visible even if the increment has a lower resolution!
+        local precision = items[idx].label == nil and 6 or 4
+        items[idx].fstring = "%.0"..tostring(math.min(precision,math.max(getDecimalCount(items[idx].value),math.max(1,getDecimalCount(items[idx][4]))))).."f %s"
+        collectgarbage()
+        collectgarbage()
+      end
     end
     -- initialize
     if items[idx].status == nil then
-      items[idx].status = 1
-      items[idx].timer = 0
-    end
-  end
-  collectgarbage()
-  collectgarbage()
-end
-
-local function initCommands(items)
-  for idx=1,#items
-  do
-    if items[idx].status == nil then
-      items[idx].status = 0 
+      items[idx].status = myPage.listType == 3 and 0  or 1
       items[idx].timer = 0
     end
   end
@@ -851,6 +851,9 @@ local function background()
             last_mav_frame_id = frame_id
             last_mav_data_id = data_id
             last_mav_value = value
+            if conf.enableDebug == true then
+              utils.pushMessage(7,string.format("RX: %02X:%04X:%08X", sportPacket.frame_id, sportPacket.data_id, sportPacket.value),true)
+            end
             processSportData(sportPacket)
           end
         end
@@ -874,32 +877,31 @@ local function background()
     
     sendMavliteTimer = getTime()
   end
-  --]]  
+  --]]
+  
   if getTime() - refreshTimer > 25 then
     -- process global parameters
     processItemTimers(globalParams)
     processItemsParamGet(globalParams)
     
     -- process vehicle parameters
-    if tuning[page] ~= nil then
-        processItemTimers(tuning[page].list)
-        processItemsParamGet(tuning[page].list)
-        processItemsParamSet(tuning[page].list)
-    elseif params[page-#tuningPages] ~= nil then
-        processItemTimers(params[page-#tuningPages].list)
-        processItemsParamGet(params[page-#tuningPages].list)
-        processItemsParamSet(params[page-#tuningPages].list)
-    elseif commands[page-(#tuningPages+#paramsPages)] ~= nil then
-        processCommandTimers(commands[page-(#tuningPages+#paramsPages)].list)
-        processCommandSet(commands[page-(#tuningPages+#paramsPages)].list)
+    if pages[page] ~= nil then
+      if pages[page].listType == 3 then
+        processCommandTimers(pages[page].list)
+        processCommandSet(pages[page].list)
+      elseif pages[page].listType ~= 4 then
+        -- do not process config menu items
+        processItemTimers(pages[page].list)
+        processItemsParamGet(pages[page].list)
+        processItemsParamSet(pages[page].list)
+      end
     end
-    
     refreshTimer = getTime()
   end
   
   for i=1,5
   do
-    mavLib.process_sport_tx_queue(utils)
+    mavLib.process_sport_tx_queue(utils, conf)
   end
   
   collectgarbage()
@@ -919,87 +921,50 @@ local function isFileEmpty(filename)
   return false
 end
 
-local function searchPages(filepath,prefix,pages,pageType)
+local function searchPages(filepath, prefix, pages, pageType)
   -- look for frame specific pages
   local found = 1
   while found > 0 do
     local page = string.format("%s%s_%s_%d.lua",filepath, prefix, pageType, found)
-    print("luaDebug: page=", page)
     if isFileEmpty(page) then
       break
     end
     pages[#pages+1] = page
-    utils.pushMessage(7,pages[#pages])
     found=found+1
   end
   collectgarbage()
   collectgarbage()
 end
 
-local searchFrameParams = true
-
-local function loadFrameSpecificPages()
-  if tuning[page] ~= nil then
-    return
-  end
-  
-  --[[
-  --]]  local frame = "plane"
-  
+--[[
+  wait for frame type from telemetry and ask for Q_PLANE if required
+--]]
+local function getFrameType()
   if telemetry.frameType ~= -1 then
     if frameTypes[telemetry.frameType] == "c" then
-      tuningPages[1] = "copter_tune"
-      frame = "copter"
+      return "copter"
     elseif frameTypes[telemetry.frameType] == "h" then
-      tuningPages[1] = "heli_tune"
-      frame = "heli"
+      return "heli"
     elseif frameTypes[telemetry.frameType] == "p" then
       local param = getItemByName(globalParams,"Q_ENABLE")
-      
       if param == nil then
         globalParams[#globalParams+1] = {"Q_ENABLE"  , 0, 1, 1 ,status=1,timer=0}
       else
         if param.value ~= nil then
           if param.value > 0 then
-            tuningPages[1] = "plane_tune"
-            tuningPages[2] = "qplane_tune"
-            frame = "qplane"
+            return "qplane"
           else
-            tuningPages[1] = "plane_tune"
-            frame = "plane"
+            return "plane"
           end
         end
       end
     elseif frameTypes[telemetry.frameType] == "r" or frameTypes[telemetry.frameType] == "b" then
-      tuningPages[1] = "rover_tune"
-      frame = "rover"
+      return "rover"
     end
-    
-    if tuningPages[page] ~= nil then
-      if page <= #tuningPages then 
-        tuning[page] = utils.doLibrary(tuningPages[page])
-      end
-      
-      if tuning[page].list then
-        initParams(tuning[page].list)
-      end
-      
-      collectgarbage()
-      collectgarbage()
-      maxmem = 0
-      
-      if searchFrameParams == true then
-        searchPages(libBasePath, frame, paramsPages,"params")
-        searchPages(libBasePath, frame, commandsPages, "commands")
-        -- qplane loads plane pages too!
-        if frame == "qplane" then
-          searchPages(libBasePath, "plane", paramsPages, "params")
-          searchPages(libBasePath, "plane", commandsPages, "commands")
-        end
-        searchFrameParams = false
-      end
-    end
+  else
+    drawLib.drawWarning("...detecting vehicle")
   end
+  return nil
 end
 
 local function getModelFilename()
@@ -1015,52 +980,36 @@ local function searchDefaultPages(pageType,pages)
     return
   end
   pages[#pages+1] = libBasePath.."default_"..pageType..".lua"
-  utils.pushMessage(7,pages[#pages])
 end
 
-local function loadParamsPages()
-  if params[page-#tuningPages] ~= nil then
+local function initPage(pageNames, pages, idx)
+  if pages[idx] ~= nil then
     return
   end
   
-  if page > #tuningPages then
-    local p = loadScript(paramsPages[page-#tuningPages])
-    if p == nil then
-      params[page-#tuningPages] = nil
-    else
-      params[page-#tuningPages] = p()
-    end
-  end
-  
-  if params[page-#tuningPages].list then
-    initParams(params[page-#tuningPages].list)
-  end
-  
-  collectgarbage()
-  collectgarbage()
-  maxmem = 0
-end
-
-local function loadCommandsPages()
-  if commands[page-(#tuningPages+#paramsPages)] ~= nil then
+  if pageNames[idx] == nil then
     return
   end
-  if page > (#tuningPages+#paramsPages) then
-    local p = loadScript(commandsPages[page-(#tuningPages+#paramsPages)])
+  
+  if idx > 0 then
+    local p = loadScript(pageNames[idx])
     if p == nil then
-      commands[page-(#tuningPages+#paramsPages)] = nil
+      pages[idx] = nil
     else
-      commands[page-(#tuningPages+#paramsPages)] = p()
+      pages[idx] = p()
     end
   end
   
-  if commands[page-(#tuningPages+#paramsPages)].list then
-    initCommands(commands[page-(#tuningPages+#paramsPages)].list)
+  if pages[idx] == nil then
+    return
+  end
+  
+  if pages[idx].list and pages[idx].listType ~= 4 then
+    initPageItems(pages[idx])
   end
   
   collectgarbage()
   collectgarbage()
-
   maxmem = 0
 end
 
@@ -1068,15 +1017,60 @@ end
 
 
 local showMessageScreen = false
---------------------------
--- RUN
---------------------------
-local function run(event)
-  background()
-  lcd.clear()
-  ---------------------
-  -- DRAW ITEMS
-  ---------------------  
+local pageSearchDone = false
+local pageSearchStep = 0
+
+local function searchAllPages(myPages)
+  if telemetry.frame == nil then
+    telemetry.frame = getFrameType()
+  end
+  
+  if pageSearchStep == 0 then
+    --[[
+      frame specific pages:
+        a) tuning pages
+        b) params
+        c) comnmands pages
+    --]]
+    if telemetry.frame ~= nil then
+      if telemetry.frame == "qplane" then
+        myPages[1] = libBasePath.."qplane_tune.lua"
+        myPages[2] = libBasePath.."plane_tune.lua"
+      else
+        myPages[1] = libBasePath..telemetry.frame.."_tune.lua"
+      end
+      pageSearchStep = 1
+    end
+  elseif pageSearchStep == 1 then
+    -- params pages
+    searchPages(libBasePath, telemetry.frame, myPages,"params")
+    if telemetry.frame == "qplane" then
+      searchPages(libBasePath, "plane", myPages,"params")
+    elseif telemetry.frame == "heli" then
+      searchPages(libBasePath, "copter", myPages,"params")
+    end
+    searchDefaultPages("params", myPages)
+    searchPages(cfgPath, getModelFilename(), myPages, "params")
+    pageSearchStep = 2
+  elseif pageSearchStep == 2 then
+    -- commands pages
+    searchPages(libBasePath, telemetry.frame, myPages, "commands")
+    if telemetry.frame == "qplane" then
+      searchPages(libBasePath, "plane", myPages, "commands")
+    elseif telemetry.frame == "heli" then
+      searchPages(libBasePath, "copter", myPages, "commands")
+    end
+    searchDefaultPages("commands", myPages)
+    searchPages(cfgPath, getModelFilename(), myPages, "commands")
+    pageSearchStep = 3
+  elseif pageSearchStep == 3 then
+    -- config pages
+    myPages[#myPages+1] = libBasePath.."config_menu.lua"
+    pageSearchStep = 4
+  end
+end
+
+local function drawScreen(event)
   if showMessageScreen then
     drawLib.drawMessageScreen(status)
     
@@ -1088,89 +1082,74 @@ local function run(event)
     if telemetryEnabled() then
       -- prevent page switch if frametype unknown
       if (event == 513 or event == EVT_PAGE_BREAK) and telemetry.frameType ~= -1 then
-        
-        utils.clearTable(tuning[page])
-        tuning[page] = nil
-        utils.clearTable(params[page-#tuningPages])
-        params[page-#tuningPages] = nil
+        utils.clearTable(pages[page])
+        pages[page] = nil
         collectgarbage()
         collectgarbage()
-        -- on page swithc clear tx queue
         
-        page = page+1
+        page = page + 1
         -- on page switch reset item counter
+        mavLib.clear_sport_tx_queue()
         idx = 1
         
-        if page > (math.max(1,#commandsPages) + math.max(1,#paramsPages) + #tuningPages) then
+        if page > math.max(1, #pageFiles) then
           page = 1
         end
       end
       
-      if page <= #tuningPages or #tuningPages == 0 then --from 0 to #tuningPages ==> display tuning pages
-        if tuning[page] ~= nil then
-          drawList(tuning[page], event)
-        else
-          if telemetry.frameType ~= -1 then
-            drawLib.drawWarning("...loading")
-          else
-            drawLib.drawWarning("...detecting vehicle")
-          end
-          loadFrameSpecificPages()
-        end
+      if pages[page] ~= nil then
+        drawList(pages[page], event)
         drawLib.drawBottomBar(status)
       else
-        if page > #tuningPages and page <= (#tuningPages + #paramsPages) then  -- from #tuningPages + 1 to #tuningPages + #paramPages ==> display param pages
-          if params[page-#tuningPages] ~= nil then
-            drawList(params[page-#tuningPages], event)
-          else
-            drawLib.drawWarning("...loading")
-            loadParamsPages()
-          end
-        elseif page > (#tuningPages + #paramsPages) then  -- from #tuningPages + #paramPages ==> display commands pages
-          if commands[page-(#tuningPages + #paramsPages)] ~= nil then
-            drawList(commands[page-(#tuningPages + #paramsPages)], event)
-          else
-            drawLib.drawWarning("...loading")
-            loadCommandsPages()
-          end
-        end
-        drawLib.drawBottomBar(status)
+        drawLib.drawWarning("...loading")
+        initPage(pageFiles, pages, page)
       end
     end
-    if event == 517 then
-      showMessageScreen = true
-    end
+      if event == 517 then
+        showMessageScreen = true
+      end
   end
-  
+end
+
+local function drawNoTelemetry()
   -- no telemetry/minmax outer box
   if telemetryEnabled() == false then
     drawLib.drawWarning("no telemetry data")
   end
+end
 
-  maxmem = math.max(maxmem,collectgarbage("count")*1024)
-  lcd.drawNumber(LCD_W, LCD_H-7, maxmem,SMLSIZE+INVERS+RIGHT)
+local function calcStats()
+end
+
+local function drawStats()
+end
+
+local function clearScreen()
+  lcd.clear()
+end
+--------------------------
+-- RUN
+--------------------------
+local function run(event)
+
+  calcStats()
+  background()
+  searchAllPages(pageFiles)
+  clearScreen()
+  drawScreen(event)
+  drawNoTelemetry()  
+  drawStats()
+
   return 0
 end
 
 local function init()
-  
   -- load mavlite library
   mavLib = utils.doLibrary("mavlite")  
   drawLib = utils.doLibrary("taranis")
-  searchDefaultPages("params",paramsPages)
-  searchDefaultPages("commands",commandsPages)
-  searchPages(cfgPath, getModelFilename(), paramsPages, "params")
-  searchPages(cfgPath, getModelFilename(), commandsPages, "commands")
-    
-  
-  
-  
-  
-  
-  
   -- ok done
-  utils.pushMessage(7,"Yaapu LuaGCS 0.9-dev")
-  
+  utils.pushMessage(7,"Yaapu LuaGCS 1.0")
+  -- recover memory
   collectgarbage()
   collectgarbage()
 end

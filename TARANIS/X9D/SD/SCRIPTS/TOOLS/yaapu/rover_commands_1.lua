@@ -4,7 +4,8 @@ local description = "Rover Commands"
   2 CMD_ID
   2 options names,  
   3 params array, {0,0,0,0,0,0,0} up to 7 parameters
---]]--[[
+--]]
+--[[
   // Auto Pilot modes
   // ----------------
   enum Number {
@@ -21,7 +22,8 @@ local description = "Rover Commands"
       GUIDED       = 15,
       INITIALISING = 16
   };
---]]local commands = {
+--]]
+local commands = {
   {"FENCE ENABLE"  , {"Disable","Enable","Floor Only"}, { {0}, {1}, {2} }, cmd_id=207, value=1 },
   {"REBOOT"  , {"Autopilot","Onboard Computer"}, { {1,0}, {0,1} }, cmd_id=246, value=1 },
   {"MODE"  ,

@@ -42,6 +42,8 @@
 ---------------------
 -- DEV FEATURE CONFIG
 ---------------------
+-- enable pages debug
+--#define DEBUG_PAGES
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
@@ -49,10 +51,10 @@
 -- cache params pages
 --#define 
 -- enable full telemetry debug
---#define DEBUG_SPORT
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
+--#define MEMDEBUG
 -- enable dev code
 --#define DEV
 -- use radio channels imputs to generate fake telemetry data
@@ -63,7 +65,9 @@
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
+--#define HUDRATE
 -- calc and show telemetry process rate
+--#define BGTELERATE
 
 
 
@@ -80,6 +84,7 @@
 --[[
   status of pending mavlite messages
 ]]
+
 
 
 ----------------------
@@ -124,7 +129,8 @@ COMBO
   2 label list, 
   3 value list, 
 }
---]]local parameters = {
+--]]
+local parameters = {
   -- row 1
   {"RLL2SRV_P"      , 0.1, 4.0, 0.1       , x=5,y=32+2,label="P"},
   {"RLL2SRV_I"      , 0.0, 1.0, 0.05      , x=5,y=32+18,label="I"},

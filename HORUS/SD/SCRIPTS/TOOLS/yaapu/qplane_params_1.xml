@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ParametersPage xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <name>plane params</name>
+  <name>qplane params</name>
   <version>1.0.12.1</version>
   <vehicle>plane</vehicle>
-  <dateOfCreation>2020-08-01T19:03:19.894284+02:00</dateOfCreation>
+  <dateOfCreation>2020-11-10T18:02:31.0814967+01:00</dateOfCreation>
   <author />
   <radio>HORUS class</radio>
   <parameters>
@@ -31,10 +31,75 @@
       <description>Loiter maximum lean angle. Set to zero for 2/3 of PSC_ANGLE_MAX or ANGLE_MAX</description>
     </MavlinkParameter>
     <MavlinkParameter>
-      <valueList />
+      <valueList>
+        <MPValue>
+          <_code>0</_code>
+          <_label>None</_label>
+          <code>0</code>
+          <label>None</label>
+        </MPValue>
+        <MPValue>
+          <_code>1</_code>
+          <_label>LevelTransition</_label>
+          <code>1</code>
+          <label>LevelTransition</label>
+        </MPValue>
+        <MPValue>
+          <_code>2</_code>
+          <_label>AllowFWTakeoff</_label>
+          <code>2</code>
+          <label>AllowFWTakeoff</label>
+        </MPValue>
+        <MPValue>
+          <_code>4</_code>
+          <_label>AllowFWLand</_label>
+          <code>4</code>
+          <label>AllowFWLand</label>
+        </MPValue>
+        <MPValue>
+          <_code>8</_code>
+          <_label>Respect takeoff frame types</_label>
+          <code>8</code>
+          <label>Respect takeoff frame types</label>
+        </MPValue>
+        <MPValue>
+          <_code>16</_code>
+          <_label>Use a fixed wing approach for VTOL landings</_label>
+          <code>16</code>
+          <label>Use a fixed wing approach for VTOL landings</label>
+        </MPValue>
+        <MPValue>
+          <_code>32</_code>
+          <_label>Use QRTL instead of QLAND for failsafe when in VTOL modes</_label>
+          <code>32</code>
+          <label>Use QRTL instead of QLAND for failsafe when in VTOL modes</label>
+        </MPValue>
+        <MPValue>
+          <_code>64</_code>
+          <_label>Use idle governor in MANUAL</_label>
+          <code>64</code>
+          <label>Use idle governor in MANUAL</label>
+        </MPValue>
+        <MPValue>
+          <_code>128</_code>
+          <_label>QAssist force enabled</_label>
+          <code>128</code>
+          <label>QAssist force enabled</label>
+        </MPValue>
+        <MPValue>
+          <_code>256</_code>
+          <_label>Tailsitter QAssist motors only</_label>
+          <code>256</code>
+          <label>Tailsitter QAssist motors only</label>
+        </MPValue>
+      </valueList>
+      <min />
+      <max />
       <group>Q_</group>
       <name>Q_OPTIONS</name>
+      <range />
       <increment>0:LevelTransition,1:AllowFWTakeoff,2:AllowFWLand,3:Respect takeoff frame types,4:Use a fixed wing approach for VTOL landings,5:Use QRTL instead of QLAND for failsafe when in VTOL modes,6:Use idle governor in MANUAL,7:QAssist force enabled,8:Tailsitter QAssist motors only</increment>
+      <values>0:None,1:LevelTransition,2:AllowFWTakeoff,4:AllowFWLand,8:Respect takeoff frame types,16:Use a fixed wing approach for VTOL landings,32:Use QRTL instead of QLAND for failsafe when in VTOL modes,64:Use idle governor in MANUAL,128:QAssist force enabled,256:Tailsitter QAssist motors only</values>
       <description>This provides a set of additional control options for quadplanes. LevelTransition means that the wings should be held level to within LEVEL_ROLL_LIMIT degrees during transition to fixed wing flight, and the vehicle will not use the vertical lift motors to climb during the transition. If AllowFWTakeoff bit is not set then fixed wing takeoff on quadplanes will instead perform a VTOL takeoff. If AllowFWLand bit is not set then fixed wing land on quadplanes will instead perform a VTOL land. If respect takeoff frame is not set the vehicle will interpret all takeoff waypoints as an altitude above the corrent position. When Use QRTL is set it will replace QLAND with QRTL for failsafe actions when in VTOL modes.</description>
       <bitmask>0:LevelTransition,1:AllowFWTakeoff,2:AllowFWLand,3:Respect takeoff frame types,4:Use a fixed wing approach for VTOL landings,5:Use QRTL instead of QLAND for failsafe when in VTOL modes,6:Use idle governor in MANUAL,7:QAssist force enabled,8:Tailsitter QAssist motors only</bitmask>
     </MavlinkParameter>

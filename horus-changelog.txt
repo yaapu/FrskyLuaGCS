@@ -11,4 +11,8 @@ version 0.9
 fix crc error
 improved memory footprint
 
+version 1.0
+
+heli fixes
+faster param download
 

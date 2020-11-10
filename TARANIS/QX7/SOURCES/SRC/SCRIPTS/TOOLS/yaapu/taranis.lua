@@ -42,6 +42,8 @@
 ---------------------
 -- DEV FEATURE CONFIG
 ---------------------
+-- enable pages debug
+--#define DEBUG_PAGES
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
@@ -49,10 +51,10 @@
 -- cache params pages
 --#define CACHE_PARAMS
 -- enable full telemetry debug
---#define DEBUG_SPORT
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
+--#define MEMDEBUG
 -- enable dev code
 --#define DEV
 -- use radio channels imputs to generate fake telemetry data
@@ -63,7 +65,9 @@
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
+--#define HUDRATE
 -- calc and show telemetry process rate
+--#define BGTELERATE
 
 
 
@@ -82,6 +86,7 @@
 ]]
 
 
+
 --[[
 0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
 1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
@@ -92,6 +97,7 @@
 6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
 7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
 --]]
+
 local mavSeverity = {}
 
 mavSeverity[0]="EMR"
@@ -135,6 +141,7 @@ mavSeverity[7]="DBG"
 	MAV_TYPE_PARAFOIL=28,             /* Steerable, nonrigid airfoil | */
 	MAV_TYPE_DODECAROTOR=29,          /* Dodecarotor | */
 ]]
+
 local frameType = nil
 local frameTypes = {}
 -- copter
@@ -230,8 +237,9 @@ local function drawCommandItem(items,idx,menu,msgRequestStatus,mavResult)
   end
 end
 
-local function drawListItem(items,idx,menu,msgRequestStatus)
+local function drawListItem(items,idx,menu,msgRequestStatus, configMenu)
   lcd.drawText(2,7 + (idx-menu.offset-1)*7, items[idx][1],SMLSIZE)
+  
   if idx == menu.selectedItem then
     if menu.editSelected then
         flags = INVERS+BLINK
@@ -241,16 +249,22 @@ local function drawListItem(items,idx,menu,msgRequestStatus)
   else
     flags = 0
   end
+  
+  local xPos = configMenu and LCD_W or (LCD_W - 15)
+
   if items[idx].value == nil then
-    lcd.drawText(LCD_W-15,7 + (idx-menu.offset-1)*7, "---",SMLSIZE+flags+RIGHT)
+    lcd.drawText(xPos,7 + (idx-menu.offset-1)*7, "---",SMLSIZE+flags+RIGHT)
   else
     if type(items[idx][2]) == "table" then -- COMBO
-      lcd.drawText(LCD_W-15,7 + (idx-menu.offset-1)*7, items[idx][2][items[idx].value],SMLSIZE+flags+RIGHT)
+      lcd.drawText(xPos,7 + (idx-menu.offset-1)*7, items[idx][2][items[idx].value],SMLSIZE+flags+RIGHT)
     else
-      lcd.drawText(LCD_W-15,7 + (idx-menu.offset-1)*7, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+SMLSIZE+RIGHT)
+      lcd.drawText(xPos,7 + (idx-menu.offset-1)*7, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+SMLSIZE+RIGHT)
     end
   end
-  lcd.drawText(LCD_W,7 + (idx-menu.offset-1)*7, msgRequestStatus[items[idx].status],flags+SMLSIZE+RIGHT)
+  
+  if not configMenu then
+    lcd.drawText(LCD_W,7 + (idx-menu.offset-1)*7, msgRequestStatus[items[idx].status],flags+SMLSIZE+RIGHT)
+  end
 end
 
 local function drawMessageScreen(status)
