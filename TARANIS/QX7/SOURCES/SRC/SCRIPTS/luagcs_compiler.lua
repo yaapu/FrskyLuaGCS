@@ -339,8 +339,7 @@ local function run(event)
   return 0
 end
 
-local function init()
-  pushMessage("Yaapu LuaGCS 1.0")
+local function compileAll()
   compileDefaultPages("params")
   compileDefaultPages("commands")
   compileTuningPages()
@@ -352,7 +351,12 @@ local function init()
   createEmptyFiles("commands")
 end
 
+local function init()
+  pushMessage("Yaapu LuaGCS 1.0")
+  compileAll()
+end
+
 --------------------------------------------------------------------------------
 -- SCRIPT END
 --------------------------------------------------------------------------------
-return {run=run, init=init}
+return {run=run, init=init, compileAll=compileAll}
