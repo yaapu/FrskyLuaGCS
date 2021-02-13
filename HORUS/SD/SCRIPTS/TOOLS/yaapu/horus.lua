@@ -29,9 +29,8 @@
 -- load and compile of lua files
 --#define LOADSCRIPT
 -- enable mavlite logging to file
---#define LOGTOFILE
 -- uncomment to force compile of all chunks, comment for release
---#define COMPILE
+--#define 
 -- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
 
 
@@ -42,32 +41,30 @@
 ---------------------
 -- DEV FEATURE CONFIG
 ---------------------
--- enable pages debug
---#define DEBUG_PAGES
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
---#define 
+--#define CACHE_TUNING
 -- cache params pages
---#define 
+--#define CACHE_PARAMS
 -- enable full telemetry debug
+--#define DEBUG_SPORT
+--#define DEBUG_MAVLITE
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
 -- enable memory debuging 
---#define MEMDEBUG
 -- enable dev code
 --#define DEV
 -- use radio channels imputs to generate fake telemetry data
---#define TESTMODE
+--#define 
+  -- cell count
 
 
 ---------------------
 -- DEBUG REFRESH RATES
 ---------------------
 -- calc and show hud refresh rate
---#define HUDRATE
 -- calc and show telemetry process rate
---#define BGTELERATE
 
 
 
@@ -86,7 +83,6 @@
 ]]
 
 
-
 --[[
 0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
 1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
@@ -97,7 +93,6 @@
 6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
 7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
 --]]
-
 local mavSeverity = {}
 
 mavSeverity[0]="EMR"
@@ -141,7 +136,6 @@ mavSeverity[7]="DBG"
 	MAV_TYPE_PARAFOIL=28,             /* Steerable, nonrigid airfoil | */
 	MAV_TYPE_DODECAROTOR=29,          /* Dodecarotor | */
 ]]
-
 local frameType = nil
 local frameTypes = {}
 -- copter
@@ -170,175 +164,19 @@ frameTypes[10]  = "r"
 frameTypes[11]  = "b"
 
 
-local frameNames = {}
--- copter
-frameNames[0]   = "GEN"
-frameNames[2]   = "QUAD"
-frameNames[3]   = "COAX"
-frameNames[4]   = "HELI"
-frameNames[13]  = "HEX"
-frameNames[14]  = "OCTO"
-frameNames[15]  = "TRI"
-frameNames[29]  = "DODE"
--- plane
-frameNames[1]   = "WING"
-frameNames[16]  = "FLAP"
-frameNames[19]  = "VTOL2"
-frameNames[20]  = "VTOL4"
-frameNames[21]  = "VTOLT"
-frameNames[22]  = "VTOL"
-frameNames[23]  = "VTOL"
-frameNames[24]  = "VTOL"
-frameNames[25]  = "VTOL"
-frameNames[28]  = "FOIL"
--- rover
-frameNames[10]  = "ROV"
--- boat
-frameNames[11]  = "BOAT"
-
-local gpsStatuses = {}
-
-gpsStatuses[0]="NoGPS"
-gpsStatuses[1]="NoLock"
-gpsStatuses[2]="2DFIX"
-gpsStatuses[3]="3DFIX"
-gpsStatuses[4]="DGPS"
-gpsStatuses[5]="RTK"
-gpsStatuses[6]="RTK"
-
-------------------------------
--- TELEMETRY DATA
-------------------------------
-local telemetry = {}
--- STATUS 
-telemetry.flightMode = 0
-telemetry.simpleMode = 0
-telemetry.landComplete = 0
-telemetry.statusArmed = 0
-telemetry.battFailsafe = 0
-telemetry.ekfFailsafe = 0
-telemetry.imuTemp = 0
--- GPS
-telemetry.numSats = 0
-telemetry.gpsStatus = 0
-telemetry.gpsHdopC = 100
-telemetry.gpsAlt = 0
--- BATT 1
-telemetry.batt1volt = 0
-telemetry.batt1current = 0
-telemetry.batt1mah = 0
--- BATT 2
-telemetry.batt2volt = 0
-telemetry.batt2current = 0
-telemetry.batt2mah = 0
--- HOME
-telemetry.homeDist = 0
-telemetry.homeAlt = 0
-telemetry.homeAngle = -1
--- VELANDYAW
-telemetry.vSpeed = 0
-telemetry.hSpeed = 0
-telemetry.yaw = 0
--- ROLLPITCH
-telemetry.roll = 0
-telemetry.pitch = 0
-telemetry.range = 0 
--- PARAMS
-telemetry.frameType = -1
-telemetry.frame = nil
-telemetry.batt1Capacity = 0
-telemetry.batt2Capacity = 0
--- GPS
-telemetry.lat = nil
-telemetry.lon = nil
-telemetry.homeLat = nil
-telemetry.homeLon = nil
--- WP
-telemetry.wpNumber = 0
-telemetry.wpDistance = 0
-telemetry.wpXTError = 0
-telemetry.wpBearing = 0
-telemetry.wpCommands = 0
--- RC channels
-telemetry.rcchannels = {}
--- VFR
-telemetry.airspeed = 0
-telemetry.throttle = 0
-telemetry.baroAlt = 0
--- Total distance
-telemetry.totalDist = 0
-
---------------------------------
--- STATUS DATA
---------------------------------
-local status = {}
--- MESSAGES
-status.messages = {}
-status.msgBuffer = ""
-status.lastMsgValue = 0
-status.lastMsgTime = 0
-status.lastMessage = nil
-status.lastMessageSeverity = 0
-status.lastMessageCount = 1
-status.messageCount = 0
--- LINK STATUS
-status.noTelemetryData = 1
-status.hideNoTelemetry = false
--- FLVSS 1
-status.cell1min = 0
-status.cell1sum = 0
--- FLVSS 2
-status.cell2min = 0
-status.cell2sum = 0
--- FC 1
-status.cell1sumFC = 0
-status.cell1maxFC = 0
--- FC 2
-status.cell2sumFC = 0
-status.cell2maxFC = 0
---------------------------------
-status.cell1count = 0
-status.cell2count = 0
-
-status.battsource = "na"
-
-status.batt1sources = {
-  vs = false,
-  fc = false
+local status = {
+  messages = {},
+  messageCount = 1,
+  msgBuffer = "",
+  lastMsgValue = 0,
 }
-status.batt2sources = {
-  vs = false,
-  fc = false
-}
--- SYNTH VSPEED SUPPORT
-status.vspd = 0
-status.synthVSpeedTime = 0
-status.prevHomeAlt = 0
--- FLIGHT TIME
-status.lastTimerStart = 0
-status.timerRunning = 0
-status.flightTime = 0
--- EVENTS
-status.lastStatusArmed = 0
-status.lastGpsStatus = 0
-status.lastFlightMode = 0
-status.lastSimpleMode = 0
--- battery levels
-status.batLevel = 99
-status.battLevel1 = false
-status.battLevel2 = false
-status.lastBattLevel = 14
--- LINK STATUS
-status.showDualBattery = false
-status.showMinMaxValues = false
--- MAP
-status.screenTogglePage = 1
-status.mapZoomLevel = 1
--- FLIGHTMODE
-status.strFlightMode = nil
-status.modelString = nil
+status.messages[1] = {} -- only 1 message for Taranis radios
 
-local soundFileBasePath = "/SOUNDS/yaapu0"
+local telemetry = {
+  frameType = -1,
+  batt1volt = 0,
+}
+
 ----------------------
 --- COLORS
 ----------------------
@@ -356,7 +194,7 @@ local function drawWarning(text)
   lcd.drawFilledRectangle(50,76, 380, 80, CUSTOM_COLOR)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
   lcd.drawText(65, 80, text, DBLSIZE+CUSTOM_COLOR)
-  lcd.drawText(130, 130, "Yaapu LuaGCS 1.0", SMLSIZE+CUSTOM_COLOR)
+  lcd.drawText(130, 130, "Yaapu LuaGCS 0.6-dev", SMLSIZE+CUSTOM_COLOR)
 end
 
 local function drawBars(page, menu)
@@ -368,8 +206,7 @@ local function drawBars(page, menu)
   local itemIdx = string.format("%d/%d",menu.selectedItem,#page.list)
   lcd.setColor(CUSTOM_COLOR,COLOR_WHITE)
   lcd.drawText(LCD_W,190,itemIdx,CUSTOM_COLOR+RIGHT)
-  --]]
-end
+  --]]end
 
 local function drawTopBar(status,telemetryEnabled,telemetry)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)
@@ -409,7 +246,7 @@ end
 
 local function drawCommandItem(items,idx,menu,msgRequestStatus,mavResult)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)    
-  lcd.drawText(2,18 + (idx-menu.offset-1)*16, items[idx][1],CUSTOM_COLOR+SMLSIZE)
+  lcd.drawText(2,7 + (idx-menu.offset-1)*16, items[idx][1],CUSTOM_COLOR+SMLSIZE)
   if idx == menu.selectedItem then
     if menu.editSelected then
         flags = INVERS+BLINK
@@ -419,18 +256,17 @@ local function drawCommandItem(items,idx,menu,msgRequestStatus,mavResult)
   else
     flags = 0
   end
-  lcd.drawText(280,18 + (idx-menu.offset-1)*16, items[idx][2][items[idx].value],flags+CUSTOM_COLOR+SMLSIZE)
+  lcd.drawText(280,7 + (idx-menu.offset-1)*16, items[idx][2][items[idx].value],flags+CUSTOM_COLOR+SMLSIZE)
   if items[idx].result == nil then
-    lcd.drawText(LCD_W-2,18 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
+    lcd.drawText(LCD_W-2,7 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
   else
-    lcd.drawText(LCD_W-2,18 + (idx-menu.offset-1)*16, mavResult[items[idx].result],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
+    lcd.drawText(LCD_W-2,7 + (idx-menu.offset-1)*16, mavResult[items[idx].result],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
   end
 end
 
-local function drawListItem(items, idx, menu, msgRequestStatus, configMenu)
+local function drawListItem(items,idx,menu,msgRequestStatus)
   lcd.setColor(CUSTOM_COLOR,0xFFFF)    
-  lcd.drawText(2,18 + (idx-menu.offset-1)*16, items[idx][1],CUSTOM_COLOR+SMLSIZE)
-  
+  lcd.drawText(2,7 + (idx-menu.offset-1)*16, items[idx][1],CUSTOM_COLOR+SMLSIZE)
   if idx == menu.selectedItem then
     if menu.editSelected then
         flags = INVERS+BLINK
@@ -440,30 +276,16 @@ local function drawListItem(items, idx, menu, msgRequestStatus, configMenu)
   else
     flags = 0
   end
-  
-  local xPos = 165
-  
-  if configMenu then
-    flags = flags + RIGHT
-    xPos = LCD_W - 2
-  end
-  
   if items[idx].value == nil then
-    lcd.drawText(xPos,18 + (idx-menu.offset-1)*16, "--------",flags+CUSTOM_COLOR+SMLSIZE)
+    lcd.drawText(280,7 + (idx-menu.offset-1)*16, "--------",flags+CUSTOM_COLOR+SMLSIZE)
   else
     if type(items[idx][2]) == "table" then -- COMBO
-      local option = tostring(items[idx][2][items[idx].value])
-      if #option > 25 then
-        option = string.sub(option,1,25)
-      end
-      lcd.drawText(xPos,18 + (idx-menu.offset-1)*16, option ,flags+CUSTOM_COLOR+SMLSIZE)
+      lcd.drawText(280,7 + (idx-menu.offset-1)*16, items[idx][2][items[idx].value],flags+CUSTOM_COLOR+SMLSIZE)
     else
-      lcd.drawText(xPos,18 + (idx-menu.offset-1)*16, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+CUSTOM_COLOR+SMLSIZE)
+      lcd.drawText(280,7 + (idx-menu.offset-1)*16, string.format(items[idx].fstring,items[idx].value,(items[idx][5]~=nil and items[idx][5] or "")),flags+CUSTOM_COLOR+SMLSIZE)
     end
   end
-  if not configMenu then
-    lcd.drawText(LCD_W-2,18 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
-  end
+  lcd.drawText(LCD_W-2,7 + (idx-menu.offset-1)*16, msgRequestStatus[items[idx].status],flags+CUSTOM_COLOR+SMLSIZE+RIGHT)
 end
 
 local function drawPanelItem(panel,idx,menu,msgShortRequestStatus)

@@ -86,6 +86,7 @@
 ]]
 
 
+-- X-Lite Support
 
 --[[
 0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.

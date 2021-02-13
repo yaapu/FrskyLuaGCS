@@ -47,9 +47,9 @@
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
---#define 
+--#define CACHE_TUNING
 -- cache params pages
---#define 
+--#define CACHE_PARAMS
 -- enable full telemetry debug
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
@@ -86,6 +86,7 @@
 ]]
 
 
+-- X-Lite Support
 
 ----------------------
 --- COLORS
@@ -105,22 +106,6 @@ local panel = true
 local labelWidth = 54
 local columnWidth = 120
 local boxes = {
-  {label="Stabilize Roll"   , x=0       ,y=32        ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  {label="Stabilize Pitch"  , x=0+120   ,y=32        ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  {label="Stabilize Yaw"    , x=0+240   ,y=32        ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  {label="Stabilize Loiter" , x=0+360   ,y=32        ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  
-  {label="Rate Roll"        , x=0       ,y=32+38     ,width=120,height=90, color=lcd.RGB(255,255,255)},
-  {label="Rate Pitch"       , x=0+120   ,y=32+38     ,width=120,height=90, color=lcd.RGB(255,255,255)},
-  {label="Rate Yaw"         , x=0+240   ,y=32+38     ,width=120,height=90, color=lcd.RGB(255,255,255)},
-  {label="Rate Loiter"      , x=0+360   ,y=32+38     ,width=120,height=74, color=lcd.RGB(255,255,255)},
-  
-  {label="Throttle Accel"   , x=0       ,y=32+142    ,width=120,height=80, color=lcd.RGB(255,255,255)},
-  {label="Throttle Rate"    ,x=0+120    ,y=32+142    ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  {label="Alt Hold"         , x=0+240   ,y=32+142    ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  {label="WP Nav cm/s"      , x=0+360   ,y=32+126    ,width=120,height=96, color=lcd.RGB(255,255,255)},
-  
-  {label="Autotune"         , x=0+120   ,y=32+178    ,width=120,height=44, color=lcd.RGB(255,255,255)},
 }
 
 --[[
@@ -141,52 +126,25 @@ COMBO
 --]]
 local parameters = {
   -- row 1
-  {"ATC_ANG_RLL_P"        , 0, 12.0, 0.05           , x=3,y=32+5,label="P"},
-  {"ATC_ANG_PIT_P"        , 0, 12.0, 0.05           , x=123,y=32+5,label="P"},
-  {"ATC_ANG_YAW_P"        , 0, 12.0, 0.05           , x=243,y=32+5,label="P"},
-  {"PSC_POSXY_P"          , 0.5, 2, 0.1             , x=363,y=32+5,label="P"},
   -- row 2
   {"ATC_RAT_RLL_P"        , 0.01, 0.5, 0.005        , x=3,y=32+43,label="P"},
   {"ATC_RAT_RLL_I"        , 0.01, 2.0, 0.01         , x=3,y=32+59,label="I"},
   {"ATC_RAT_RLL_D"        , 0.0, 0.05, 0.001        , x=3,y=32+75,label="D"},
-  {"ATC_RAT_RLL_IMAX"     , 0, 1, 0.01              , x=3,y=32+91,label="IMAX"},
-  --{"ATC_RAT_RLL_FILT"   ,  1, 50, 1               , x=3,y=32+107,label="FILT"},
   
   {"ATC_RAT_PIT_P"        , 0.01, 0.5, 0.005        , x=123,y=32+43,label="P"},
   {"ATC_RAT_PIT_I"        , 0.01, 2.0, 0.01         , x=123,y=32+59,label="I"},
   {"ATC_RAT_PIT_D"        , 0.0, 0.05, 0.001        , x=123,y=32+75,label="D"},
-  {"ATC_RAT_PIT_IMAX"     , 0, 1, 0.01              , x=123,y=32+91,label="IMAX"},
-  --{"ATC_RAT_PIT_FILT"   ,  1, 50, 1               , x=123,y=32+107,label="FILT"},
   
   {"ATC_RAT_YAW_P"        , 0.1, 2.5, 0.005         , x=243,y=32+43,label="P"},
   {"ATC_RAT_YAW_I"        , 0.01, 1.0, 0.01         , x=243,y=32+59,label="I"},
   {"ATC_RAT_YAW_D"        , 0.0, 0.02, 0.001        , x=243,y=32+75,label="D"},
-  {"ATC_RAT_YAW_IMAX"     , 0, 1, 0.01              , x=243,y=32+91,label="IMAX"},
-  --{"ATC_RAT_YAW_FILT"   , 1, 5, 1                 , x=243,y=32+107,label="FILT"},
   
-  {"PSC_VELXY_P"          , 0.1, 6.0, 0.1           , x=363,y=32+43,label="P"},
-  {"PSC_VELXY_I"          , 0.02, 1.0, 0.01         , x=363,y=32+59,label="I"},
-  {"PSC_VELXY_D"          , 0.0, 1.0, 0.001         , x=363,y=32+75,label="D"},
-  {"PSC_VELXY_IMAX"       , 0, 4500, 10             , x=363,y=32+91,label="IMAX"},
-  
-  -- row 3
-  {"PSC_ACCZ_P"           , 0.5, 1.5, 0.05          , x=3,y=32+147,label="P"},
-  {"PSC_ACCZ_I"           , 0.0, 3.0, 0.05          , x=3,y=32+163,label="I"},
-  {"PSC_ACCZ_D"           , 0.0, 0.4, 0.01          , x=3,y=32+179,label="D"},
-  {"PSC_ACCZ_IMAX"        , 0, 1000, 1              , x=3,y=32+195,label="IMAX"},
-
-  {"PSC_VELZ_P"           , 1, 8.0, 0.25            , x=123,y=32+147,label="P"},
-
-  {"PSC_POSZ_P"           , 1, 3.0, 0.1             , x=243,y=32+147,label="P"},
-
-  {"WPNAV_SPEED"          , 20, 2000, 50            , x=363,y=32+133,label="Speed"},
-  {"WPNAV_RADIUS"         , 5, 1000, 1              , x=363,y=32+148,label="Radius"},
-  {"WPNAV_SPEED_UP"       , 10, 1000, 50            , x=363,y=32+164,label="Spd Up"},
-  {"WPNAV_SPEED_DN"       , 10, 500, 10             , x=363,y=32+180,label="Spd Dn"},
-  {"LOIT_SPEED"           , 20, 2000, 50            , x=363,y=32+196,label="Loiter"},
   -- row 4
   {"AUTOTUNE_AXES"        , {"All","Roll","Ptch","Yaw","R+P","R+Y","P+Y"}, {7,1,2,4,3,5,6}, x=123,y=32+184,label="Axis"},
   {"AUTOTUNE_AGGR"        , 0.05, 0.1, 0.01         , x=123,y=32+200,label="Aggr"},
+  {"TUNE",{"None","Stab Roll/Pitch kP","Rate Roll/Pitch kP","Rate Roll/Pitch kI","Rate Roll/Pitch kD","Stab Yaw kP","Rate Yaw kP","Rate Yaw kD","Rate Yaw Filter","Motor Yaw Headroom","AltHold kP","Throttle Rate kP","Throttle Accel kP","Throttle Accel kI","Throttle Accel kD","Loiter Pos kP","Velocity XY kP","Velocity XY kI","WP Speed","Acro RollPitch kP","Acro Yaw kP","RC Feel","Heli Ext Gyro","Declination","Circle Rate","RangeFinder Gain","Rate Pitch kP","Rate Pitch kI","Rate Pitch kD","Rate Roll kP","Rate Roll kI","Rate Roll kD","Rate Pitch FF","Rate Roll FF","Rate Yaw FF","Winch","SysID Magnitude",},{0,1,4,5,21,3,6,26,56,55,14,7,34,35,36,12,22,28,10,25,40,45,13,38,39,41,46,47,48,49,50,51,52,53,54,57,58,},},
+  {"TUNE_MIN",0,1000000,0.1,"",},
+  {"TUNE_MAX",0,1000000,0.1,"",},
 }
 
 return {

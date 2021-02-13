@@ -16,7 +16,6 @@
       INITIALISING = 16
   };
 --]]
-
 local flightModes = {}
 
 -- rover modes

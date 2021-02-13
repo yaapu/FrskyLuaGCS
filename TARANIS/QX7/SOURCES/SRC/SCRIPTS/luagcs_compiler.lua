@@ -86,6 +86,7 @@
 ]]
 
 
+-- X-Lite Support
 
 ----------------------
 --- COLORS
@@ -352,7 +353,7 @@ local function compileAll()
 end
 
 local function init()
-  pushMessage("Yaapu LuaGCS 1.0")
+  pushMessage("Yaapu LuaGCS 1.0.2")
   compileAll()
 end
 

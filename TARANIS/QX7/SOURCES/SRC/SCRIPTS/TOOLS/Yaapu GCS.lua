@@ -86,6 +86,7 @@
 ]]
 
 
+-- X-Lite Support
 
 
 
@@ -429,7 +430,7 @@ end
 local function drawList(myPage, event)
   local items = myPage.list
   drawLib.drawBars(myPage, menu)
-  if event == EVT_ENTER_BREAK then
+  if event == EVT_ENTER_BREAK or event == 34 then
     if menu.editSelected == true then
       -- confirm modified value
       writeItem(menu.selectedItem)
@@ -446,20 +447,20 @@ local function drawList(myPage, event)
         items[menu.selectedItem].status = 1
       end
     end
-  elseif menu.editSelected and (event == EVT_EXIT_BREAK ) then
+  elseif menu.editSelected and (event == EVT_EXIT_BREAK  or event == 33 ) then
     items[menu.selectedItem].value = items[menu.selectedItem].lastValue
     menu.editSelected = not menu.editSelected
     menu.updated = false
-  elseif menu.editSelected and (event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_PLUS_REPT) then
+  elseif menu.editSelected and (event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_PLUS_REPT or event == 36 or event == 68) then
     incMenuItem(items,menu.selectedItem)
-  elseif menu.editSelected and (event == EVT_MINUS_BREAK or event == EVT_ROT_RIGHT or event == EVT_MINUS_REPT) then
+  elseif menu.editSelected and (event == EVT_MINUS_BREAK or event == EVT_ROT_RIGHT or event == EVT_MINUS_REPT or event == 35 or event == 67) then
     decMenuItem(items,menu.selectedItem)
-  elseif not menu.editSelected and (event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT) then
+  elseif not menu.editSelected and (event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == 36) then
     menu.selectedItem = (menu.selectedItem - 1)
     if menu.offset >=  menu.selectedItem then
       menu.offset = menu.offset - 1
     end
-  elseif not menu.editSelected and (event == EVT_MINUS_BREAK or event == EVT_ROT_RIGHT) then
+  elseif not menu.editSelected and (event == EVT_MINUS_BREAK or event == EVT_ROT_RIGHT or event == 35) then
     menu.selectedItem = (menu.selectedItem + 1)
     if menu.selectedItem - 7 > menu.offset then
       menu.offset = menu.offset + 1
@@ -730,6 +731,7 @@ local function processItemsParamGet(items)
         if mavLib.queue_message(msg) == true then
           items[idx].status = 3
           items[idx].timer = getTime()
+          items[idx].set = false
         end
       end
     end
@@ -765,6 +767,7 @@ local function processItemsParamSet(items)
           if mavLib.queue_message(msg) == true then
             items[i].status = 3
             items[i].timer = getTime()
+            items[i].set = true
           end
         end
       end
@@ -799,14 +802,18 @@ local function processItemTimers(items)
   for i=1,#items
   do
     -- check if a refresh is needed
-    if items[i].status == 3 then 
+    if items[i].status == 3 then
       -- check timer
       if now - items[i].timer > 500 then
         items[i].status = 4
         items[i].timer = now
       end
     elseif items[i].status == 4 then
-      items[i].status = 1
+      if items[i].set == true then
+        items[i].status = 2
+      else
+        items[i].status = 1
+      end
     end
   end
 end
@@ -1089,6 +1096,8 @@ local function searchAllPages(myPages)
   end
 end
 
+local ver, radio, maj, minor, rev = getVersion()
+
 local function drawScreen(event)
   if showMessageScreen then
     drawLib.drawMessageScreen(status)
@@ -1100,9 +1109,12 @@ local function drawScreen(event)
     drawLib.drawTopBar(status,telemetryEnabled,telemetry)
     if telemetryEnabled() then
       -- prevent page switch if frametype unknown
-      if (event == 513 or event == EVT_PAGE_BREAK) and telemetry.frameType ~= -1 then
-        utils.clearTable(pages[page])
-        pages[page] = nil
+      if (event == 513 or event == EVT_PAGE_BREAK or (string.find(radio,"xlite") ~= nil and event == 37)) and telemetry.frameType ~= -1 then
+        -- always cache the config menu page
+        if page ~= #pages then
+          utils.clearTable(pages[page])
+          pages[page] = nil
+        end
         collectgarbage()
         collectgarbage()
         
@@ -1167,7 +1179,7 @@ local function init()
   mavLib = utils.doLibrary("mavlite")  
   drawLib = utils.doLibrary("taranis")
   -- ok done
-  utils.pushMessage(7,"Yaapu LuaGCS 1.0")
+  utils.pushMessage(7,"Yaapu LuaGCS 1.0.2")
   -- recover memory
   collectgarbage()
   collectgarbage()

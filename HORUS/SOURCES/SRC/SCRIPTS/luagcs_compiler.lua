@@ -47,9 +47,9 @@
 -- enable events debug
 --#define DEBUGEVT
 -- cache tuning pages
---#define 
+--#define CACHE_TUNING
 -- cache params pages
---#define 
+--#define CACHE_PARAMS
 -- enable full telemetry debug
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
@@ -86,6 +86,7 @@
 ]]
 
 
+-- X-Lite Support
 
 ----------------------
 --- COLORS
@@ -113,12 +114,12 @@ local status = {
 }
 
 
--- default is TARANIS
+-- default is 
 local cfgPath = "/MODELS/yaapu/"
 local basePath = "/SCRIPTS/TOOLS/yaapu/"
 local libBasePath = basePath
--- check if 
-if LCD_W > 212 then -- 
+-- check if HORUS
+if LCD_W > 212 then -- HORUS
   cfgPath = "/SCRIPTS/YAAPU/CFG/"
 end
 -----------------------------
@@ -143,13 +144,13 @@ end
 local function formatMessage(msg)
   local clippedMsg = msg
   if LCD_W > 212 then
-    -- 
+    -- HORUS
     if #msg > 50 then
       clippedMsg = string.sub(msg,1,50)
       msg = nil
     end
   elseif LCD_W > 128 then
-    -- X9 class
+    --  class
     if #msg > 38 then
       clippedMsg = string.sub(msg,1,38)
       msg = nil
@@ -181,7 +182,7 @@ local function pushMessage(msg)
     status.lastMessageCount = 1
     status.messageCount = status.messageCount + 1
   end
-  status.messages[(status.messageCount-1) % 20] = formatMessage(msg)
+  status.messages[(status.messageCount-1) % 9] = formatMessage(msg)
   status.lastMessage = msg
   -- Collect Garbage
   collectgarbage()
@@ -352,7 +353,7 @@ local function compileAll()
 end
 
 local function init()
-  pushMessage("Yaapu LuaGCS 1.0")
+  pushMessage("Yaapu LuaGCS 1.0.2")
   compileAll()
 end
 
