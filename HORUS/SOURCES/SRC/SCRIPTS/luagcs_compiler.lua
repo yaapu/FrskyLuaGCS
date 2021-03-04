@@ -45,11 +45,10 @@
 -- enable pages debug
 --#define DEBUG_PAGES
 -- enable events debug
---#define DEBUGEVT
 -- cache tuning pages
---#define CACHE_TUNING
+--#define 
 -- cache params pages
---#define CACHE_PARAMS
+--#define 
 -- enable full telemetry debug
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
@@ -114,12 +113,12 @@ local status = {
 }
 
 
--- default is 
+-- default is TARANIS
 local cfgPath = "/MODELS/yaapu/"
 local basePath = "/SCRIPTS/TOOLS/yaapu/"
 local libBasePath = basePath
--- check if HORUS
-if LCD_W > 212 then -- HORUS
+-- check if 
+if LCD_W > 212 then -- 
   cfgPath = "/SCRIPTS/YAAPU/CFG/"
 end
 -----------------------------
@@ -144,13 +143,13 @@ end
 local function formatMessage(msg)
   local clippedMsg = msg
   if LCD_W > 212 then
-    -- HORUS
+    -- 
     if #msg > 50 then
       clippedMsg = string.sub(msg,1,50)
       msg = nil
     end
   elseif LCD_W > 128 then
-    --  class
+    -- X9 class
     if #msg > 38 then
       clippedMsg = string.sub(msg,1,38)
       msg = nil
@@ -182,7 +181,7 @@ local function pushMessage(msg)
     status.lastMessageCount = 1
     status.messageCount = status.messageCount + 1
   end
-  status.messages[(status.messageCount-1) % 9] = formatMessage(msg)
+  status.messages[(status.messageCount-1) % 20] = formatMessage(msg)
   status.lastMessage = msg
   -- Collect Garbage
   collectgarbage()

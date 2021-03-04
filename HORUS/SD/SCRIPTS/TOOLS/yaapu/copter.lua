@@ -26,7 +26,8 @@
         SYSTEMID  =    25,  // System ID mode produces automated system identification signals in the controllers
         AUTOROTATE =   26,  // Autonomous autorotation
     };
-  --]]  local flightModes = {}
+  --]]
+  local flightModes = {}
   
   -- copter flight modes
   flightModes[0]=""

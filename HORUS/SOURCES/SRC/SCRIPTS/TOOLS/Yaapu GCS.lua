@@ -45,11 +45,10 @@
 -- enable pages debug
 --#define DEBUG_PAGES
 -- enable events debug
---#define DEBUGEVT
 -- cache tuning pages
---#define CACHE_TUNING
+--#define 
 -- cache params pages
---#define CACHE_PARAMS
+--#define 
 -- enable full telemetry debug
 -- enable full telemetry decoding
 --#define FULL_TELEMETRY
@@ -174,19 +173,175 @@ frameTypes[10]  = "r"
 frameTypes[11]  = "b"
 
 
-local status = {
-  messages = {},
-  messageCount = 1,
-  msgBuffer = "",
-  lastMsgValue = 0,
-}
-status.messages[1] = {} -- only 1 message for Taranis radios
+local frameNames = {}
+-- copter
+frameNames[0]   = "GEN"
+frameNames[2]   = "QUAD"
+frameNames[3]   = "COAX"
+frameNames[4]   = "HELI"
+frameNames[13]  = "HEX"
+frameNames[14]  = "OCTO"
+frameNames[15]  = "TRI"
+frameNames[29]  = "DODE"
+-- plane
+frameNames[1]   = "WING"
+frameNames[16]  = "FLAP"
+frameNames[19]  = "VTOL2"
+frameNames[20]  = "VTOL4"
+frameNames[21]  = "VTOLT"
+frameNames[22]  = "VTOL"
+frameNames[23]  = "VTOL"
+frameNames[24]  = "VTOL"
+frameNames[25]  = "VTOL"
+frameNames[28]  = "FOIL"
+-- rover
+frameNames[10]  = "ROV"
+-- boat
+frameNames[11]  = "BOAT"
 
-local telemetry = {
-  frameType = -1,
-  batt1volt = 0,
-}
+local gpsStatuses = {}
 
+gpsStatuses[0]="NoGPS"
+gpsStatuses[1]="NoLock"
+gpsStatuses[2]="2DFIX"
+gpsStatuses[3]="3DFIX"
+gpsStatuses[4]="DGPS"
+gpsStatuses[5]="RTK"
+gpsStatuses[6]="RTK"
+
+------------------------------
+-- TELEMETRY DATA
+------------------------------
+local telemetry = {}
+-- STATUS 
+telemetry.flightMode = 0
+telemetry.simpleMode = 0
+telemetry.landComplete = 0
+telemetry.statusArmed = 0
+telemetry.battFailsafe = 0
+telemetry.ekfFailsafe = 0
+telemetry.imuTemp = 0
+-- GPS
+telemetry.numSats = 0
+telemetry.gpsStatus = 0
+telemetry.gpsHdopC = 100
+telemetry.gpsAlt = 0
+-- BATT 1
+telemetry.batt1volt = 0
+telemetry.batt1current = 0
+telemetry.batt1mah = 0
+-- BATT 2
+telemetry.batt2volt = 0
+telemetry.batt2current = 0
+telemetry.batt2mah = 0
+-- HOME
+telemetry.homeDist = 0
+telemetry.homeAlt = 0
+telemetry.homeAngle = -1
+-- VELANDYAW
+telemetry.vSpeed = 0
+telemetry.hSpeed = 0
+telemetry.yaw = 0
+-- ROLLPITCH
+telemetry.roll = 0
+telemetry.pitch = 0
+telemetry.range = 0 
+-- PARAMS
+telemetry.frameType = -1
+telemetry.frame = nil
+telemetry.batt1Capacity = 0
+telemetry.batt2Capacity = 0
+-- GPS
+telemetry.lat = nil
+telemetry.lon = nil
+telemetry.homeLat = nil
+telemetry.homeLon = nil
+-- WP
+telemetry.wpNumber = 0
+telemetry.wpDistance = 0
+telemetry.wpXTError = 0
+telemetry.wpBearing = 0
+telemetry.wpCommands = 0
+-- RC channels
+telemetry.rcchannels = {}
+-- VFR
+telemetry.airspeed = 0
+telemetry.throttle = 0
+telemetry.baroAlt = 0
+-- Total distance
+telemetry.totalDist = 0
+
+--------------------------------
+-- STATUS DATA
+--------------------------------
+local status = {}
+-- MESSAGES
+status.messages = {}
+status.msgBuffer = ""
+status.lastMsgValue = 0
+status.lastMsgTime = 0
+status.lastMessage = nil
+status.lastMessageSeverity = 0
+status.lastMessageCount = 1
+status.messageCount = 0
+-- LINK STATUS
+status.noTelemetryData = 1
+status.hideNoTelemetry = false
+-- FLVSS 1
+status.cell1min = 0
+status.cell1sum = 0
+-- FLVSS 2
+status.cell2min = 0
+status.cell2sum = 0
+-- FC 1
+status.cell1sumFC = 0
+status.cell1maxFC = 0
+-- FC 2
+status.cell2sumFC = 0
+status.cell2maxFC = 0
+--------------------------------
+status.cell1count = 0
+status.cell2count = 0
+
+status.battsource = "na"
+
+status.batt1sources = {
+  vs = false,
+  fc = false
+}
+status.batt2sources = {
+  vs = false,
+  fc = false
+}
+-- SYNTH VSPEED SUPPORT
+status.vspd = 0
+status.synthVSpeedTime = 0
+status.prevHomeAlt = 0
+-- FLIGHT TIME
+status.lastTimerStart = 0
+status.timerRunning = 0
+status.flightTime = 0
+-- EVENTS
+status.lastStatusArmed = 0
+status.lastGpsStatus = 0
+status.lastFlightMode = 0
+status.lastSimpleMode = 0
+-- battery levels
+status.batLevel = 99
+status.battLevel1 = false
+status.battLevel2 = false
+status.lastBattLevel = 14
+-- LINK STATUS
+status.showDualBattery = false
+status.showMinMaxValues = false
+-- MAP
+status.screenTogglePage = 1
+status.mapZoomLevel = 1
+-- FLIGHTMODE
+status.strFlightMode = nil
+status.modelString = nil
+
+local soundFileBasePath = "/SOUNDS/yaapu0"
 ----------------------
 --- COLORS
 ----------------------
@@ -219,6 +374,16 @@ local msgRequestStatus = {
   [7] = "ERR_RNG",
 }
 
+local msgShortRequestStatus = {
+  [0] = "na", -- "na", -- NA
+  [1] = "gv", -- "get",-- GV
+  [2] = "sv", -- "set",-- SV
+  [3] = "wt", -- "wait",-- WT
+  [4] = "ex",-- EX
+  [5] = "ok", -- OK
+  [6] = "va",-- VA
+  [7] = "rn",-- RN
+}
 
 local mavResult = {
   [0] = "ACCEPT",
@@ -246,7 +411,7 @@ local globalParamsDone = false
 
 local basePath = "/SCRIPTS/TOOLS/yaapu/"
 local libBasePath = basePath
-local cfgPath = "/MODELS/yaapu/"
+local cfgPath = "/SCRIPTS/YAAPU/CFG/"
 
 local bitmaps = {}
 local blinktime = getTime()
@@ -286,9 +451,6 @@ local page = 1
 
 utils.doLibrary = function(filename)
   local f = assert(loadScript(libBasePath..filename..".lua"))
-  -- recover memory
-  collectgarbage()
-  collectgarbage()
   return f()
 end
 
@@ -377,9 +539,6 @@ end
 local function getDecimalCount(num)
   local strNum = tostring(num)
   local pos = string.find(strNum,"%.")
-  -- recover memory
-  collectgarbage()
-  collectgarbage()
   return pos == nil and 0 or #strNum - pos
 end
 
@@ -387,7 +546,49 @@ end
 local ver, radio, maj, minor, rev = getVersion()
 local drawLine = nil
 
+if string.find(radio, "x10") and tonumber(maj..minor..rev) < 222 then
+  drawLine = function(x1,y1,x2,y2,flags1,flags2) lcd.drawLine(LCD_W-x1,LCD_H-y1,LCD_W-x2,LCD_H-y2,flags1,flags2) end
+else
+  drawLine = function(x1,y1,x2,y2,flags1,flags2) lcd.drawLine(x1,y1,x2,y2,flags1,flags2) end
+end
 
+local function drawRArrow(x,y,r,angle,color)
+  local ang = math.rad(angle - 90)
+  local x1 = x + r * math.cos(ang)
+  local y1 = y + r * math.sin(ang)
+  
+  ang = math.rad(angle - 90 + 150)
+  local x2 = x + r * math.cos(ang)
+  local y2 = y + r * math.sin(ang)
+  
+  ang = math.rad(angle - 90 - 150)
+  local x3 = x + r * math.cos(ang)
+  local y3 = y + r * math.sin(ang)
+  ang = math.rad(angle - 270)
+  local x4 = x + r * 0.5 * math.cos(ang)
+  local y4 = y + r * 0.5 *math.sin(ang)
+  --
+  lcd.drawLine(x1,y1,x2,y2,SOLID,color)
+  lcd.drawLine(x1,y1,x3,y3,SOLID,color)
+  lcd.drawLine(x2,y2,x4,y4,SOLID,color)
+  lcd.drawLine(x3,y3,x4,y4,SOLID,color)
+end
+
+local function loadFlightModes()
+  if frame.flightModes then
+    return
+  end
+  if telemetry.frameType ~= -1 then
+    if frameTypes[telemetry.frameType] == "c" then
+      frame = utils.doLibrary(conf.enablePX4Modes and "copter_px4" or "copter")
+    elseif frameTypes[telemetry.frameType] == "p" then
+      frame = utils.doLibrary(conf.enablePX4Modes and "plane_px4" or "plane")
+    elseif frameTypes[telemetry.frameType] == "r" or frameTypes[telemetry.frameType] == "b" then
+      frame = utils.doLibrary("rover")
+    end
+    maxmem = 0
+  end
+end
 
 local function writeItem(idxToSave)
   if pages[page].listType == 4 then
@@ -443,7 +644,7 @@ local function drawList(myPage, event)
     end
   elseif not menu.editSelected and (event == EVT_MINUS_BREAK or event == EVT_ROT_RIGHT or event == 35) then
     menu.selectedItem = (menu.selectedItem + 1)
-    if menu.selectedItem - 7 > menu.offset then
+    if menu.selectedItem - 10 > menu.offset then
       menu.offset = menu.offset + 1
     end
   end
@@ -453,26 +654,40 @@ local function drawList(myPage, event)
     menu.offset = 0
   elseif menu.selectedItem  < 1 then
     menu.selectedItem = #items
-    menu.offset =  math.max(0,#items - 7)
+    menu.offset =  math.max(0,#items - 10)
   end
   
   if myPage.listType == nil or myPage.listType == 4 then -- paramters or config menu
   -- draw list
-    for m=1+menu.offset,math.min(#items,7+menu.offset) do
+    for m=1+menu.offset,math.min(#items,10+menu.offset) do
+      lcd.setColor(CUSTOM_COLOR,0xFFFF)   
       drawLib.drawListItem(items, m, menu, msgRequestStatus, myPage.listType == 4)
     end
   elseif myPage.listType == 2 then -- tuning panels
   -- draw list
-    for m=1+menu.offset,math.min(#items,7+menu.offset) do
-      drawLib.drawListItem(items,m,menu,msgRequestStatus)
+    for m=1,#items do
+      lcd.setColor(CUSTOM_COLOR,0xFFFF)   
+      drawLib.drawPanelItem(myPage,m,menu,msgShortRequestStatus)
+    end
+  -- draw boxes
+    for b=1,#myPage.boxes do
+      lcd.setColor(CUSTOM_COLOR,myPage.boxes[b].color)   
+      lcd.drawRectangle(myPage.boxes[b].x,myPage.boxes[b].y,myPage.boxes[b].width,myPage.boxes[b].height,CUSTOM_COLOR)
+      lcd.setColor(CUSTOM_COLOR,0x0000)   
+      lcd.drawFilledRectangle(myPage.boxes[b].x+5,myPage.boxes[b].y-10,myPage.boxes[b].width-10,14,CUSTOM_COLOR)
+      lcd.setColor(CUSTOM_COLOR,0xFFFF)   
+      lcd.drawText(myPage.boxes[b].x+8,myPage.boxes[b].y-12,myPage.boxes[b].label,CUSTOM_COLOR+SMLSIZE)
     end
   elseif myPage.listType == 3 then -- commands
   -- draw list
-    for m=1+menu.offset,math.min(#items,7+menu.offset) do
+    for m=1+menu.offset,math.min(#items,10+menu.offset) do
+      lcd.setColor(CUSTOM_COLOR,0xFFFF)   
       drawLib.drawCommandItem(items,m,menu,msgRequestStatus,mavResult)
     end
   end
   -- page title
+  lcd.setColor(CUSTOM_COLOR,0xFFFF)
+  lcd.drawText(0,0,string.format("%s - %d/%d",myPage.description, page, #pageFiles),CUSTOM_COLOR)
 end
 
 
@@ -528,9 +743,6 @@ local function processMavliteMessage(msg)
         end
       end
     end
-    -- recover memory
-    collectgarbage()
-    collectgarbage()
   elseif msg.msgid == 77 then -- CMD_ACK
     local cmd_id = mavLib.msg_get_uint16(msg,0)
     local mav_result = mavLib.msg_get_uint8(msg,2)
@@ -550,28 +762,93 @@ end
 local function formatMessage(severity,msg)
   local clippedMsg = msg
   
-  if #msg > 38 then
-    clippedMsg = string.sub(msg,1,38)
+  if #msg > 50 then
+    clippedMsg = string.sub(msg,1,50)
     msg = nil
   end
-  -- recover memory
-  collectgarbage()
-  collectgarbage()
-  local txt = string.format("%02d:%s %s", status.messageCount, mavSeverity[severity], clippedMsg)
-  -- recover memory
-  collectgarbage()
-  collectgarbage()
+  local txt = nil
+  if status.lastMessageCount > 1 then
+    txt = string.format("%02d:%s (x%d) %s", status.messageCount, mavSeverity[severity], status.lastMessageCount, clippedMsg)
+  else
+    txt = string.format("%02d:%s %s", status.messageCount, mavSeverity[severity], clippedMsg)
+  end
   return txt
 end
 
+-- flight time only supported on Horus
+local function startTimer()
+  status.lastTimerStart = getTime()/100
+  model.setTimer(2,{mode=1})
+end
 
+local function stopTimer()
+  model.setTimer(2,{mode=0})
+  status.lastTimerStart = 0
+end
+
+local function calcFlightTime()
+  status.flightTime = model.getTimer(2).value
+end
+
+local function checkLandingStatus()
+  if ( status.timerRunning == 0 and telemetry.landComplete == 1 and status.lastTimerStart == 0) then
+    startTimer()
+  end
+  if (status.timerRunning == 1 and telemetry.landComplete == 0 and status.lastTimerStart ~= 0) then
+    stopTimer()
+  end
+  status.timerRunning = telemetry.landComplete
+end
+
+utils.getBitmap = function(name)
+  if bitmaps[name] == nil then
+    bitmaps[name] = Bitmap.open("/SCRIPTS/YAAPU/IMAGES/"..name..".png")
+  end
+  return bitmaps[name],Bitmap.getSize(bitmaps[name])
+end
+
+utils.unloadBitmap = function(name)
+  if bitmaps[name] ~= nil then
+    bitmaps[name] = nil
+    -- force call to luaDestroyBitmap()
+    collectgarbage()
+    collectgarbage()
+  end
+end
+
+utils.drawBlinkBitmap = function(bitmap,x,y)
+  if blinkon == true then
+      lcd.drawBitmap(utils.getBitmap(bitmap),x,y)
+  end
+end
+
+utils.playSound = function(soundFile,skipHaptic)
+  playFile(soundFileBasePath .."/"..conf.language.."/".. soundFile..".wav")
+end
 
 utils.pushMessage = function(severity, msg, silent)
-  status.messages[1][1] = formatMessage(severity,msg)
-  status.messageCount = status.messageCount + 1
-  -- recover memory
-  collectgarbage()
-  collectgarbage()
+  if silent == nil then
+    if severity < 5 and conf.disableMsgBeep < 3 then
+      utils.playSound("../err",true)
+    elseif conf.disableMsgBeep < 2 then
+      utils.playSound("../inf",true)
+    end
+  end
+  
+  if msg == status.lastMessage then
+    status.lastMessageCount = status.lastMessageCount + 1
+  else  
+    status.lastMessageCount = 1
+    status.messageCount = status.messageCount + 1
+  end
+  if status.messages[(status.messageCount-1) % 20] == nil then
+    status.messages[(status.messageCount-1) % 20] = {}
+  end
+  status.messages[(status.messageCount-1) % 20][1] = formatMessage(severity,msg)
+  status.messages[(status.messageCount-1) % 20][2] = severity
+  
+  status.lastMessage = msg
+  status.lastMessageSeverity = severity
 end
 
 local function processTelemetry(sp)
@@ -585,9 +862,6 @@ local function processTelemetry(sp)
         c = bit32.extract(sp.value,i*8,7)
         if c ~= 0 then
           status.msgBuffer = status.msgBuffer .. string.char(c)
-          -- recover memory
-          collectgarbage()
-          collectgarbage()
         else
           msgEnd = true;
           break;
@@ -597,20 +871,87 @@ local function processTelemetry(sp)
         local severity = (bit32.extract(sp.value,7,1) * 1) + (bit32.extract(sp.value,15,1) * 2) + (bit32.extract(sp.value,23,1) * 4)
         utils.pushMessage( severity, status.msgBuffer)
         status.msgBuffer = nil
-        -- recover memory
-        collectgarbage()
-        collectgarbage()
         status.msgBuffer = ""
       end
     end
   elseif sp.data_id == 0x5007 then -- PARAMS
-    local paramId = bit32.extract(sp.value,24,4)
-    local paramValue = bit32.extract(sp.value,0,24)
+    paramId = bit32.extract(sp.value,24,4)
+    paramValue = bit32.extract(sp.value,0,24)
     if paramId == 1 then -- frame type
       telemetry.frameType = paramValue
     end 
+  elseif sp.data_id == 0x5006 then -- ROLLPITCH
+    -- roll [0,1800] ==> [-180,180]
+    telemetry.roll = (math.min(bit32.extract(sp.value,0,11),1800) - 900) * 0.2
+    -- pitch [0,900] ==> [-90,90]
+    telemetry.pitch = (math.min(bit32.extract(sp.value,11,10),900) - 450) * 0.2
+    -- number encoded on 11 bits: 10 bits for digits + 1 for 10^power
+    telemetry.range = bit32.extract(sp.value,22,10) * (10^bit32.extract(sp.value,21,1)) -- cm
+  elseif sp.data_id == 0x5005 then -- VELANDYAW
+    telemetry.vSpeed = bit32.extract(sp.value,1,7) * (10^bit32.extract(sp.value,0,1)) * (bit32.extract(sp.value,8,1) == 1 and -1 or 1)-- dm/s 
+    telemetry.hSpeed = bit32.extract(sp.value,10,7) * (10^bit32.extract(sp.value,9,1)) -- dm/s
+    telemetry.yaw = bit32.extract(sp.value,17,11) * 0.2
+  elseif sp.data_id == 0x5001 then -- AP STATUS
+    telemetry.flightMode = bit32.extract(sp.value,0,5)
+    telemetry.simpleMode = bit32.extract(sp.value,5,2)
+    telemetry.landComplete = bit32.extract(sp.value,7,1)
+    telemetry.statusArmed = bit32.extract(sp.value,8,1)
+    telemetry.battFailsafe = bit32.extract(sp.value,9,1)
+    telemetry.ekfFailsafe = bit32.extract(sp.value,10,2)
+    -- IMU temperature: 0 means temp =< 19°, 63 means temp => 82°
+    telemetry.imuTemp = bit32.extract(sp.value,26,6) + 19 -- C°
+  elseif sp.data_id == 0x5002 then -- GPS STATUS
+    telemetry.numSats = bit32.extract(sp.value,0,4)
+    -- offset  4: NO_GPS = 0, NO_FIX = 1, GPS_OK_FIX_2D = 2, GPS_OK_FIX_3D or GPS_OK_FIX_3D_DGPS or GPS_OK_FIX_3D_RTK_FLOAT or GPS_OK_FIX_3D_RTK_FIXED = 3
+    -- offset 14: 0: no advanced fix, 1: GPS_OK_FIX_3D_DGPS, 2: GPS_OK_FIX_3D_RTK_FLOAT, 3: GPS_OK_FIX_3D_RTK_FIXED
+    telemetry.gpsStatus = bit32.extract(sp.value,4,2) + bit32.extract(sp.value,14,2)
+    telemetry.gpsHdopC = bit32.extract(sp.value,7,7) * (10^bit32.extract(sp.value,6,1)) -- dm
+    telemetry.gpsAlt = bit32.extract(sp.value,24,7) * (10^bit32.extract(sp.value,22,2)) * (bit32.extract(sp.value,31,1) == 1 and -1 or 1)-- dm
   elseif sp.data_id == 0x5003 then -- BATT
     telemetry.batt1volt = bit32.extract(sp.value,0,9)
+    -- telemetry max is 51.1V, 51.2 is reported as 0.0, 52.3 is 0.1...60 is 88
+    -- if 12S and V > 51.1 ==> Vreal = 51.2 + telemetry.batt1volt
+    if conf.cell1Count == 12 and telemetry.batt1volt < 240 then
+      -- assume a 2Vx12 as minimum acceptable "real" voltage
+      telemetry.batt1volt = 512 + telemetry.batt1volt
+    end
+    telemetry.batt1current = bit32.extract(sp.value,10,7) * (10^bit32.extract(sp.value,9,1))
+    telemetry.batt1mah = bit32.extract(sp.value,17,15)
+  elseif sp.data_id == 0x5008 then -- BATT2
+    telemetry.batt2volt = bit32.extract(sp.value,0,9)
+    -- telemetry max is 51.1V, 51.2 is reported as 0.0, 52.3 is 0.1...60 is 88
+    -- if 12S and V > 51.1 ==> Vreal = 51.2 + telemetry.batt1volt
+    if conf.cell2Count == 12 and telemetry.batt2volt < 240 then
+      -- assume a 2Vx12 as minimum acceptable "real" voltage
+      telemetry.batt2volt = 512 + telemetry.batt2volt
+    end
+    telemetry.batt2current = bit32.extract(sp.value,10,7) * (10^bit32.extract(sp.value,9,1))
+    telemetry.batt2mah = bit32.extract(sp.value,17,15)
+  elseif sp.data_id == 0x5004 then -- HOME
+    telemetry.homeDist = bit32.extract(sp.value,2,10) * (10^bit32.extract(sp.value,0,2))
+    telemetry.homeAlt = bit32.extract(sp.value,14,10) * (10^bit32.extract(sp.value,12,2)) * 0.1 * (bit32.extract(sp.value,24,1) == 1 and -1 or 1)
+    telemetry.homeAngle = bit32.extract(sp.value, 25,  7) * 3
+  elseif sp.data_id == 0x5007 then -- PARAMS
+    paramId = bit32.extract(sp.value,24,4)
+    paramValue = bit32.extract(sp.value,0,24)
+    if paramId == 1 then
+      telemetry.frameType = paramValue
+    elseif paramId == 4 then
+      telemetry.batt1Capacity = paramValue
+    elseif paramId == 5 then
+      telemetry.batt2Capacity = paramValue
+    elseif paramId == 6 then
+      telemetry.wpCommands = paramValue
+    end 
+  elseif sp.data_id == 0x5009 then -- WAYPOINTS @1Hz
+    telemetry.wpNumber = bit32.extract(sp.value,0,10) -- wp index
+    telemetry.wpDistance = bit32.extract(sp.value,12,10) * (10^bit32.extract(sp.value,10,2)) -- meters
+    telemetry.wpXTError = bit32.extract(sp.value,23,4) * (10^bit32.extract(sp.value,22,1)) * (bit32.extract(sp.value,27,1) == 1 and -1 or 1)-- meters
+    telemetry.wpBearing = bit32.extract(sp.value,29,3) -- offset from cog with 45° resolution 
+  elseif sp.data_id == 0x50F2 then -- VFR
+    telemetry.airspeed = bit32.extract(sp.value,1,7) * (10^bit32.extract(sp.value,0,1)) -- dm/s
+    telemetry.throttle = bit32.extract(sp.value,8,7)
+    telemetry.baroAlt = bit32.extract(sp.value,17,10) * (10^bit32.extract(sp.value,15,2)) * 0.1 * (bit32.extract(sp.value,27,1) == 1 and -1 or 1)
   end
 end
 
@@ -629,8 +970,6 @@ local function createMsgParamRequestRead(paramName)
 
     mavLib.msg_set_string(msg,paramName,0)
     
-    collectgarbage()
-    collectgarbage()
     
     return msg
 end
@@ -647,8 +986,6 @@ local function createMsgParamSet(paramName, paramValue)
     mavLib.msg_set_float(msg, paramValue,0)
     mavLib.msg_set_string(msg, paramName,4)
     
-    collectgarbage()
-    collectgarbage()
     
     return msg
 end
@@ -670,8 +1007,6 @@ local function createMsgCommandLong(cmdId,params)
       mavLib.msg_set_float(msg,params[i],3+(4*(i-1)))
     end
     
-  collectgarbage()
-  collectgarbage()
     
     return msg
 end
@@ -686,8 +1021,6 @@ local function initPageItems(myPage)
         -- make all digits visible even if the increment has a lower resolution!
         local precision = items[idx].label == nil and 6 or 4
         items[idx].fstring = "%.0"..tostring(math.min(precision,math.max(getDecimalCount(items[idx].value),math.max(1,getDecimalCount(items[idx][4]))))).."f %s"
-        collectgarbage()
-        collectgarbage()
       end
     end
     -- initialize
@@ -696,8 +1029,6 @@ local function initPageItems(myPage)
       items[idx].timer = 0
     end
   end
-  collectgarbage()
-  collectgarbage()
 end
 
 -- idx is global
@@ -726,8 +1057,6 @@ local function processItemsParamGet(items)
       break
     end
   end
-  collectgarbage()
-  collectgarbage()
 end
 --]]
 
@@ -754,8 +1083,6 @@ local function processItemsParamSet(items)
       end
     end
   end
-  collectgarbage()
-  collectgarbage()
 end
 
 local function processCommandSet(items)
@@ -774,8 +1101,6 @@ local function processCommandSet(items)
       end
     end
   end
-  collectgarbage()
-  collectgarbage()
 end
 
 local function processItemTimers(items)
@@ -868,6 +1193,19 @@ local function background()
     end  
   end
   
+  if getTime() - timer2Hz > 50 then
+    loadFlightModes()
+    checkLandingStatus()
+    calcFlightTime()
+    -- flight mode
+    if frame.flightModes then
+      status.strFlightMode = frame.flightModes[telemetry.flightMode]
+      if status.strFlightMode ~= nil and telemetry.simpleMode > 0 then
+        local strSimpleMode = telemetry.simpleMode == 1 and "(S)" or "(SS)"
+        status.strFlightMode = string.format("%s%s",status.strFlightMode,strSimpleMode)
+      end
+    end
+  end
   
   --[[
   if getTime() - sendMavliteTimer > 25 then
@@ -911,8 +1249,11 @@ local function background()
     mavLib.process_sport_tx_queue(utils, conf)
   end
   
-  collectgarbage()
-  collectgarbage()
+  -- blinking support
+  if (getTime() - blinktime) > 65 then
+    blinkon = not blinkon
+    blinktime = getTime()
+  end
 end
 
 local function isFileEmpty(filename)
@@ -939,8 +1280,6 @@ local function searchPages(filepath, prefix, pages, pageType)
     pages[#pages+1] = page
     found=found+1
   end
-  collectgarbage()
-  collectgarbage()
 end
 
 --[[
@@ -1015,8 +1354,6 @@ local function initPage(pageNames, pages, idx)
     initPageItems(pages[idx])
   end
   
-  collectgarbage()
-  collectgarbage()
   maxmem = 0
 end
 
@@ -1087,17 +1424,8 @@ local function drawScreen(event)
       showMessageScreen = false
     end
   else
-    drawLib.drawTopBar(status,telemetryEnabled,telemetry)
-    if telemetryEnabled() then
       -- prevent page switch if frametype unknown
       if (event == 513 or event == EVT_PAGE_BREAK or (string.find(radio,"xlite") ~= nil and event == 37)) and telemetry.frameType ~= -1 then
-        -- always cache the config menu page
-        if page ~= #pages then
-          utils.clearTable(pages[page])
-          pages[page] = nil
-        end
-        collectgarbage()
-        collectgarbage()
         
         page = page + 1
         -- on page switch reset item counter
@@ -1111,12 +1439,14 @@ local function drawScreen(event)
       
       if pages[page] ~= nil then
         drawList(pages[page], event)
-        drawLib.drawBottomBar(status)
+        if pages[page].listType ~= 2 then
+          drawLib.drawStatusBar(status,telemetry,model,gpsStatuses)
+        end
       else
         drawLib.drawWarning("...loading")
         initPage(pageFiles, pages, page)
       end
-    end
+      drawLib.drawTopBar(status,telemetryEnabled,telemetry)
       if event == 517 then
         showMessageScreen = true
       end
@@ -1126,7 +1456,7 @@ end
 local function drawNoTelemetry()
   -- no telemetry/minmax outer box
   if telemetryEnabled() == false then
-    drawLib.drawWarning("no telemetry data")
+    utils.drawBlinkBitmap("warn",0,0)  
   end
 end
 
@@ -1137,7 +1467,12 @@ local function drawStats()
 end
 
 local function clearScreen()
-  lcd.clear()
+  if showMessageScreen == true then
+    lcd.setColor(CUSTOM_COLOR, 0x0000)
+  else
+    lcd.setColor(CUSTOM_COLOR, 0x0AB1)
+  end
+  lcd.clear(CUSTOM_COLOR)
 end
 --------------------------
 -- RUN
@@ -1152,18 +1487,18 @@ local function run(event)
   drawNoTelemetry()  
   drawStats()
 
+  if event > 0 then
+    print("luaDebug: event=", tostring(event))
+  end
   return 0
 end
 
 local function init()
   -- load mavlite library
   mavLib = utils.doLibrary("mavlite")  
-  drawLib = utils.doLibrary("taranis")
+  drawLib = utils.doLibrary("horus")
   -- ok done
   utils.pushMessage(7,"Yaapu LuaGCS 1.0.2")
-  -- recover memory
-  collectgarbage()
-  collectgarbage()
 end
 
 --------------------------------------------------------------------------------
