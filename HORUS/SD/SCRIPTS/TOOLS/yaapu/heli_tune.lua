@@ -114,12 +114,14 @@ local boxes = {
   {label="Rate Yaw"           , x=0+240   ,y=32+38   ,width=120,height=90, color=lcd.RGB(255,255,255)},
   {label="Rate Loiter"        , x=0+360   ,y=32+38   ,width=120,height=74, color=lcd.RGB(255,255,255)},
   
-  {label="Throttle Accel"     , x=0       ,y=32+142  ,width=120,height=80, color=lcd.RGB(255,255,255)},
+  {label="Throttle Accel"     , x=0       ,y=32+142  ,width=120,height=74, color=lcd.RGB(255,255,255)},
   {label="Throttle Rate"      , x=0+120   ,y=32+142  ,width=120,height=24, color=lcd.RGB(255,255,255)},
   {label="Alt Hold"           , x=0+240   ,y=32+142  ,width=120,height=24, color=lcd.RGB(255,255,255)},
-  {label="WP Nav cm/s"        , x=0+360   ,y=32+126  ,width=120,height=96, color=lcd.RGB(255,255,255)},
+  {label="WP Nav cm/s"        , x=0+360   ,y=32+126  ,width=120,height=90, color=lcd.RGB(255,255,255)},
   
-  {label="Autotune"           , x=0+120   ,y=32+178  ,width=120,height=44, color=lcd.RGB(255,255,255)},
+  {label="Autotune"           , x=0+120   ,y=32+180  ,width=120,height=36, color=lcd.RGB(255,255,255)},
+
+  {label="Misc"                , x=0+240   ,y=32+180  ,width=120,height=36, color=lcd.RGB(255,255,255)},
 }
 
 --[[
@@ -146,22 +148,25 @@ local parameters = {
   {"PSC_POSXY_P"          , 0.5, 2, 0.1             , x=363,y=32+5,label="P"},
   
   -- row 2
-  {"ATC_RAT_RLL_P"        , 0.08, 0.35, 0.005       , x=3,y=32+43,label="P"},
-  {"ATC_RAT_RLL_I"        , 0.01, 0.6, 0.01         , x=3,y=32+59,label="I"},
-  {"ATC_RAT_RLL_D"        , 0.001, 0.03, 0.001      , x=3,y=32+75,label="D"},
-  {"ATC_RAT_RLL_IMAX"     , 0, 1, 0.01              , x=3,y=32+91,label="IMAX"},
+  {"ATC_RAT_RLL_P"        , 0.0, 0.35, 0.005       , x=3,y=32+43,label="P"},
+  {"ATC_RAT_RLL_I"        , 0.0, 0.6, 0.01         , x=3,y=32+59,label="I"},
+  {"ATC_RAT_RLL_D"        , 0.00, 0.03, 0.0005      , x=3,y=32+75,label="D"},
+  {"ATC_RAT_RLL_VFF"      , 0,0.5,.005               , x=3,y=32+91,label="FF"},
+  {"ATC_RAT_RLL_IMAX"     , 0, 1, 0.01              , x=3,y=32+107,label="IMAX"},
   --{"ATC_RAT_RLL_FILT"   , 1, 20, 1                , x=3,y=32+107,label="FILT"},
   
-  {"ATC_RAT_PIT_P"        , 0.08, 0.35, 0.005       , x=123,y=32+43,label="P"},
-  {"ATC_RAT_PIT_I"        , 0.01, 0.6, 0.01         , x=123,y=32+59,label="I"},
-  {"ATC_RAT_PIT_D"        , 0.001, 0.03, 0.001      , x=123,y=32+75,label="D"},
-  {"ATC_RAT_PIT_IMAX"     , 0, 1, 0.01              , x=123,y=32+91,label="IMAX"},
+  {"ATC_RAT_PIT_P"        , 0.0, 0.35, 0.005       , x=123,y=32+43,label="P"},
+  {"ATC_RAT_PIT_I"        , 0.0, 0.6, 0.01         , x=123,y=32+59,label="I"},
+  {"ATC_RAT_PIT_D"        , 0.00, 0.03, 0.0005      , x=123,y=32+75,label="D"},
+  {"ATC_RAT_PIT_VFF"      , 0,0.5,.01               , x=123,y=32+91,label="FF"},
+  {"ATC_RAT_PIT_IMAX"     , 0, 1, 0.01              , x=123,y=32+107,label="IMAX"},
   --{"ATC_RAT_PIT_FILT"   , 1, 20, 1                , x=123,y=32+107,label="FILT"},
   
-  {"ATC_RAT_YAW_P"        , 0.18, 0.6, 0.005        , x=243,y=32+43,label="P"},
-  {"ATC_RAT_YAW_I"        , 0.01, 0.06, 0.01        , x=243,y=32+59,label="I"},
-  {"ATC_RAT_YAW_D"        , 0.0, 0.02, 0.001        , x=243,y=32+75,label="D"},
-  {"ATC_RAT_YAW_IMAX"     , 0, 1, 0.01              , x=243,y=32+91,label="IMAX"},
+  {"ATC_RAT_YAW_P"        , 0.0, 0.6, 0.005        , x=243,y=32+43,label="P"},
+  {"ATC_RAT_YAW_I"        , 0.0, 0.06, 0.01        , x=243,y=32+59,label="I"},
+  {"ATC_RAT_YAW_D"        , 0.0, 0.03, 0.0005        , x=243,y=32+75,label="D"},
+  {"ATC_RAT_YAW_VFF"      , 0.0,0.5,.001               , x=243,y=32+91,label="FF"},
+  {"ATC_RAT_YAW_IMAX"     , 0, 1, 0.01              , x=243,y=32+107,label="IMAX"},
   --{"ATC_RAT_YAW_FILT"   , 1, 20, 1                , x=243,y=32+107,label="FILT"},
   
   {"PSC_VELXY_P"          , 0.1, 6.0, 0.1           , x=363,y=32+43,label="P"},
@@ -186,7 +191,9 @@ local parameters = {
   {"LOIT_SPEED"           , 20, 2000, 50            , x=363,y=32+196,label="Loiter"},
   -- row 4
   {"AUTOTUNE_AXES", 1, 1, {"All","Roll","Ptch","Yaw","R+P","R+Y","P+Y"}, {7,1,2,3,4,5,6}, x=123,y=32+184,label="Axis"},
-  {"AUTOTUNE_AGGR"        , 0.05, 0.1, 0.01         , x=123,y=32+200,label="Aggr"},
+  {"AUTOTUNE_AGGR"        , 0.05, 0.1, 0.01         , x=123,y=32+196,label="Aggr"},
+  {"H_RSC_SETPOINT"       , 10,100,1                , x=243,y=32+184,label="RSC %"},
+  {"ATC_HOVR_ROL_TRM"     , 0, 1200, 10               , x=243,y=32+196,label="RllTrim"},
 }
 
 return {
