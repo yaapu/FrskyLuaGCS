@@ -132,15 +132,15 @@ COMBO
 --]]
 local parameters = {
   -- row 1
-  {"RLL2SRV_P"      , 0.1, 4.0, 0.1       , x=5,y=32+2,label="P"},
-  {"RLL2SRV_I"      , 0.0, 1.0, 0.05      , x=5,y=32+18,label="I"},
-  {"RLL2SRV_D"      , 0.0, 0.2, 0.01      , x=5,y=32+34,label="D"},
-  {"RLL2SRV_IMAX"   , 0, 4500, 1          , x=5,y=32+50,label="IMAX"},
+  {"RLL_RATE_P"     , 0.08, 0.35, 0.005   , x=5,y=32+2,label="P"},
+  {"RLL_RATE_I"     , 0.01, 0.6, 0.01     , x=5,y=32+18,label="I"},
+  {"RLL_RATE_D"     , 0.001, 0.03, 0.001  , x=5,y=32+34,label="D"},
+  {"RLL_RATE_IMAX"   , 0, 4500, 1          , x=5,y=32+50,label="IMAX"},
 
-  {"PTCH2SRV_P"     , 0.1, 4.0, 0.1       , x=165,y=32+2,label="P"},
-  {"PTCH2SRV_I"     , 0.1, 1.0, 0.05      , x=165,y=32+18,label="I"},
-  {"PTCH2SRV_D"     , 0.0, 0.2, 0.01      , x=165,y=32+34,label="D"},
-  {"PTCH2SRV_IMAX"  , 0, 4500, 1          , x=165,y=32+50,label="IMAX"},
+  {"PTCH_RATE_P"    , 0.08, 0.35, 0.005   , x=165,y=32+2,label="P"},
+  {"PTCH_RATE_I"    , 0.01, 0.6, 0.01     , x=165,y=32+18,label="I"},
+  {"PTCH_RATE_D"    , 0.001, 0.03, 0.001  , x=165,y=32+34,label="D"},
+  {"PTCH_RATE_IMAX"  , 0, 4500, 1          , x=165,y=32+50,label="IMAX"},
   
   {"YAW2SRV_SLIP"   , 0, 4.0, 0.25        , x=325,y=32+2,label="SLIP"},
   {"YAW2SRV_INT"    , 0.0, 2.0, 0.25      , x=325,y=32+18,label="INT"},
