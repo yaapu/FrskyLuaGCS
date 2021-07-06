@@ -12,3 +12,13 @@ improved memory footprint
 version 1.0
 
 heli fixes
+
+version 1.0.2
+- fix for param set/get retries
+- fix xlite event handling
+
+version 1.03
+- updated parameters to ArduPilot 4.1 beta releases
+- added option to override param range checking (select from the menu)
+- it is now possible to override tuning pages per model with pages like
+  modelname_frametype_tune.lua i.e. myquad_heli_tune.lua
