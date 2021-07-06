@@ -11,7 +11,7 @@ local parameters = {
 --[[
   Maximum value that the parameter currently being tuned with the transmitter's channel 6 knob will be set to
 --]]
-{"TUNE_MAX",0,1000000,1,"",},
+{"TUNE_MAX",0,1000000,1,"",value=0},
 
 --[[
   Minimum value that the parameter currently being tuned with the transmitter's channel 6 knob will be set to

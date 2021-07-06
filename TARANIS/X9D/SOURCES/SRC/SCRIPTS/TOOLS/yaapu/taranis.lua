@@ -1,8 +1,5 @@
 --
--- An FRSKY S.Port <passthrough protocol> based Telemetry script for the Horus X10 and X12 radios
---
--- Copyright (C) 2018-2019. Alessandro Apostoli
--- https://github.com/yaapu
+-- Author: Alessandro Apostoli https://github.com/yaapu
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -18,85 +15,15 @@
 -- along with this program; if not, see <http://www.gnu.org/licenses>.
 --
 
----------------------
--- MAIN CONFIG
--- 480x272 LCD_W x LCD_H
----------------------
-
----------------------
--- VERSION
----------------------
--- load and compile of lua files
---#define LOADSCRIPT
--- enable mavlite logging to file
---#define LOGTOFILE
--- uncomment to force compile of all chunks, comment for release
---#define COMPILE
--- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
-
-
----------------------
--- MAVLITE CONFIG
----------------------
-
----------------------
--- DEV FEATURE CONFIG
----------------------
--- enable pages debug
---#define DEBUG_PAGES
--- enable events debug
---#define DEBUGEVT
--- cache tuning pages
---#define CACHE_TUNING
--- cache params pages
---#define CACHE_PARAMS
--- enable full telemetry debug
--- enable full telemetry decoding
---#define FULL_TELEMETRY
--- enable memory debuging 
---#define MEMDEBUG
--- enable dev code
---#define DEV
--- use radio channels imputs to generate fake telemetry data
---#define TESTMODE
-
-
----------------------
--- DEBUG REFRESH RATES
----------------------
--- calc and show hud refresh rate
---#define HUDRATE
--- calc and show telemetry process rate
---#define BGTELERATE
-
-
-
-
-
---------------------------------------------------------------------------------
--- MENU VALUE,COMBO
---------------------------------------------------------------------------------
-
------------------------
--- LIBRARY LOADING
------------------------
-
 --[[
-  status of pending mavlite messages
-]]
-
-
--- X-Lite Support
-
---[[
-0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
-1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
-2	MAV_SEVERITY_CRITICAL	Action must be taken immediately. Indicates failure in a primary system.
-3	MAV_SEVERITY_ERROR	Indicates an error in secondary/redundant systems.
-4	MAV_SEVERITY_WARNING	Indicates about a possible future error if this is not resolved within a given timeframe. Example would be a low battery warning.
-5	MAV_SEVERITY_NOTICE	An unusual event has occured, though not an error condition. This should be investigated for the root cause.
-6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
-7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
+  0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
+  1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
+  2	MAV_SEVERITY_CRITICAL	Action must be taken immediately. Indicates failure in a primary system.
+  3	MAV_SEVERITY_ERROR	Indicates an error in secondary/redundant systems.
+  4	MAV_SEVERITY_WARNING	Indicates about a possible future error if this is not resolved within a given timeframe. Example would be a low battery warning.
+  5	MAV_SEVERITY_NOTICE	An unusual event has occured, though not an error condition. This should be investigated for the root cause.
+  6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
+  7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
 --]]
 
 local mavSeverity = {}
@@ -183,15 +110,6 @@ local telemetry = {
   frameType = -1,
   batt1volt = 0,
 }
-
-----------------------
---- COLORS
-----------------------
-
---#define COLOR_LABEL 0x7BCF
---#define COLOR_BG 0x0169
-
-
 
 
 local function drawWarning(text)

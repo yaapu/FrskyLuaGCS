@@ -1,8 +1,5 @@
 --
--- An FRSKY S.Port <passthrough protocol> based Telemetry script for the Horus X10 and X12 radios
---
--- Copyright (C) 2018-2019. Alessandro Apostoli
--- https://github.com/yaapu
+-- Author: Alessandro Apostoli https://github.com/yaapu
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -17,84 +14,6 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, see <http://www.gnu.org/licenses>.
 --
-
----------------------
--- MAIN CONFIG
--- 480x272 LCD_W x LCD_H
----------------------
-
----------------------
--- VERSION
----------------------
--- load and compile of lua files
---#define LOADSCRIPT
--- enable mavlite logging to file
---#define LOGTOFILE
--- uncomment to force compile of all chunks, comment for release
---#define COMPILE
--- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
-
-
----------------------
--- MAVLITE CONFIG
----------------------
-
----------------------
--- DEV FEATURE CONFIG
----------------------
--- enable pages debug
---#define DEBUG_PAGES
--- enable events debug
---#define DEBUGEVT
--- cache tuning pages
---#define CACHE_TUNING
--- cache params pages
---#define CACHE_PARAMS
--- enable full telemetry debug
--- enable full telemetry decoding
---#define FULL_TELEMETRY
--- enable memory debuging 
---#define MEMDEBUG
--- enable dev code
---#define DEV
--- use radio channels imputs to generate fake telemetry data
---#define TESTMODE
-
-
----------------------
--- DEBUG REFRESH RATES
----------------------
--- calc and show hud refresh rate
---#define HUDRATE
--- calc and show telemetry process rate
---#define BGTELERATE
-
-
-
-
-
---------------------------------------------------------------------------------
--- MENU VALUE,COMBO
---------------------------------------------------------------------------------
-
------------------------
--- LIBRARY LOADING
------------------------
-
---[[
-  status of pending mavlite messages
-]]
-
-
--- X-Lite Support
-
-----------------------
---- COLORS
-----------------------
-
---#define COLOR_LABEL 0x7BCF
---#define COLOR_BG 0x0169
-
 
 
 
@@ -341,6 +260,7 @@ local function run(event)
 end
 
 local function compileAll()
+  print("luaDebug: compileAll()")
   compileDefaultPages("params")
   compileDefaultPages("commands")
   compileTuningPages()
@@ -353,7 +273,7 @@ local function compileAll()
 end
 
 local function init()
-  pushMessage("Yaapu LuaGCS 1.0.2")
+  pushMessage("1.0.3")
   compileAll()
 end
 

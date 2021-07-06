@@ -1,7 +1,4 @@
 
-
-
-
 local current_packet_index = 0
 local packet_array_empty = true
 local packet_array = {}

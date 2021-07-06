@@ -1,8 +1,5 @@
 --
--- An FRSKY S.Port <passthrough protocol> based Telemetry script for the Horus X10 and X12 radios
---
--- Copyright (C) 2018-2019. Alessandro Apostoli
--- https://github.com/yaapu
+-- Author: Alessandro Apostoli https://github.com/yaapu
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -18,88 +15,15 @@
 -- along with this program; if not, see <http://www.gnu.org/licenses>.
 --
 
----------------------
--- MAIN CONFIG
--- 480x272 LCD_W x LCD_H
----------------------
-
----------------------
--- VERSION
----------------------
--- load and compile of lua files
---#define LOADSCRIPT
--- enable mavlite logging to file
---#define LOGTOFILE
--- uncomment to force compile of all chunks, comment for release
---#define COMPILE
--- fix for issue OpenTX 2.2.1 on X10/X10S - https://github.com/opentx/opentx/issues/5764
-
-
----------------------
--- MAVLITE CONFIG
----------------------
-
----------------------
--- DEV FEATURE CONFIG
----------------------
--- enable pages debug
---#define DEBUG_PAGES
--- enable events debug
---#define DEBUGEVT
--- cache tuning pages
---#define CACHE_TUNING
--- cache params pages
---#define CACHE_PARAMS
--- enable full telemetry debug
--- enable full telemetry decoding
---#define FULL_TELEMETRY
--- enable memory debuging 
---#define MEMDEBUG
--- enable dev code
---#define DEV
--- use radio channels imputs to generate fake telemetry data
---#define TESTMODE
-
-
----------------------
--- DEBUG REFRESH RATES
----------------------
--- calc and show hud refresh rate
---#define HUDRATE
--- calc and show telemetry process rate
---#define BGTELERATE
-
-
-
-
-
---------------------------------------------------------------------------------
--- MENU VALUE,COMBO
---------------------------------------------------------------------------------
-
------------------------
--- LIBRARY LOADING
------------------------
-
 --[[
-  status of pending mavlite messages
-]]
-
-
--- X-Lite Support
-
-
-
-
---[[
-0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
-1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
-2	MAV_SEVERITY_CRITICAL	Action must be taken immediately. Indicates failure in a primary system.
-3	MAV_SEVERITY_ERROR	Indicates an error in secondary/redundant systems.
-4	MAV_SEVERITY_WARNING	Indicates about a possible future error if this is not resolved within a given timeframe. Example would be a low battery warning.
-5	MAV_SEVERITY_NOTICE	An unusual event has occured, though not an error condition. This should be investigated for the root cause.
-6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
-7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
+  0	MAV_SEVERITY_EMERGENCY	System is unusable. This is a "panic" condition.
+  1	MAV_SEVERITY_ALERT	Action should be taken immediately. Indicates error in non-critical systems.
+  2	MAV_SEVERITY_CRITICAL	Action must be taken immediately. Indicates failure in a primary system.
+  3	MAV_SEVERITY_ERROR	Indicates an error in secondary/redundant systems.
+  4	MAV_SEVERITY_WARNING	Indicates about a possible future error if this is not resolved within a given timeframe. Example would be a low battery warning.
+  5	MAV_SEVERITY_NOTICE	An unusual event has occured, though not an error condition. This should be investigated for the root cause.
+  6	MAV_SEVERITY_INFO	Normal operational messages. Useful for logging. No action is required for these messages.
+  7	MAV_SEVERITY_DEBUG	Useful non-operational messages that can assist in debugging. These should not occur during normal operation.
 --]]
 
 local mavSeverity = {}
@@ -187,15 +111,6 @@ local telemetry = {
   batt1volt = 0,
 }
 
-----------------------
---- COLORS
-----------------------
-
---#define COLOR_LABEL 0x7BCF
---#define COLOR_BG 0x0169
-
-
-
 
 
 
@@ -205,7 +120,8 @@ local telemetry = {
 local conf = {
   language = "en",
   disableMsgBeep = 2,
-  enableDebug = false
+  enableDebug = false,
+  disableRangeChecks = false
 }
 
 local msgRequestStatus = {
@@ -350,7 +266,7 @@ local function incMenuItem(items,idx)
     end
   else
     items[idx].value = items[idx].value + items[idx][4]
-    if items[idx].value > items[idx][3] then
+    if items[idx].value > items[idx][3] and conf.disableRangeChecks == false then
       items[idx].value = items[idx][3]
     end
   end
@@ -368,7 +284,7 @@ local function decMenuItem(items,idx)
     end
   else
     items[idx].value = items[idx].value - items[idx][4]
-    if items[idx].value < items[idx][2] then
+    if items[idx].value < items[idx][2] and conf.disableRangeChecks == false then
       items[idx].value = items[idx][2]
     end
   end
@@ -916,6 +832,7 @@ local function background()
 end
 
 local function isFileEmpty(filename)
+  --print("luaDebug:",filename)
   local file = io.open(filename,"r")
   if file == nil then
     return true
@@ -1031,20 +948,23 @@ local function searchAllPages(myPages)
   if telemetry.frame == nil then
     telemetry.frame = getFrameType()
   end
-  
   if pageSearchStep == 0 then
     --[[
       frame specific pages:
         a) tuning pages
         b) params
         c) comnmands pages
+      Note:model tune pages can override frame specific ones
     --]]
+    local tuneOverride = cfgPath..getModelFilename().."_qplane_tune.lua"
     if telemetry.frame ~= nil then
       if telemetry.frame == "qplane" then
-        myPages[1] = libBasePath.."qplane_tune.lua"
-        myPages[2] = libBasePath.."plane_tune.lua"
+        myPages[1] = isFileEmpty(tuneOverride) and libBasePath.."qplane_tune.lua" or tuneOverride
+        tuneOverride = cfgPath..getModelFilename().."_plane_tune.lua"
+        myPages[2] = isFileEmpty(tuneOverride) and libBasePath.."plane_tune.lua" or tuneOverride
       else
-        myPages[1] = libBasePath..telemetry.frame.."_tune.lua"
+        tuneOverride = cfgPath..getModelFilename().."_"..telemetry.frame.."_tune.lua"
+        myPages[1] = isFileEmpty(tuneOverride) and libBasePath..telemetry.frame.."_tune.lua" or tuneOverride
       end
       pageSearchStep = 1
     end
@@ -1077,8 +997,6 @@ local function searchAllPages(myPages)
   end
 end
 
-local ver, radio, maj, minor, rev = getVersion()
-
 local function drawScreen(event)
   if showMessageScreen then
     drawLib.drawMessageScreen(status)
@@ -1090,12 +1008,12 @@ local function drawScreen(event)
     drawLib.drawTopBar(status,telemetryEnabled,telemetry)
     if telemetryEnabled() then
       -- prevent page switch if frametype unknown
-      if (event == 513 or event == EVT_PAGE_BREAK or (string.find(radio,"xlite") ~= nil and event == 37)) and telemetry.frameType ~= -1 then
-        -- always cache the config menu page
-        if page ~= #pages then
-          utils.clearTable(pages[page])
-          pages[page] = nil
-        end
+      if (
+          event == 513 
+          or event == EVT_PAGE_BREAK
+          ) and telemetry.frameType ~= -1 then
+        utils.clearTable(pages[page])
+        pages[page] = nil
         collectgarbage()
         collectgarbage()
         
@@ -1160,7 +1078,7 @@ local function init()
   mavLib = utils.doLibrary("mavlite")  
   drawLib = utils.doLibrary("taranis")
   -- ok done
-  utils.pushMessage(7,"Yaapu LuaGCS 1.0.2")
+  utils.pushMessage(7,"Yaapu LuaGCS ".."1.0.3")
   -- recover memory
   collectgarbage()
   collectgarbage()
