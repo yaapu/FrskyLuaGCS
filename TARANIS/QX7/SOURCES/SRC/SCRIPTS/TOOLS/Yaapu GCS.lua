@@ -134,13 +134,13 @@ local conf = {
   ok, ok
   va, out of range
   rn, value out of range
-  
+
   # commands
   AC, accepted
   RJ, rejected
   DE, denied
   UN, unsupported
-  FA, failed 
+  FA, failed
   PR, in progress
 --]]
 local msgRequestStatus = {
@@ -179,9 +179,9 @@ local pageFiles = {}
 local globalParams = {}
 local globalParamsDone = false
 
-local basePath = "/SCRIPTS/TOOLS/yaapu/"
-local libBasePath = basePath
-local cfgPath = "/MODELS/yaapu/"
+local basePath = "/SCRIPTS/TOOLS/YaapuGCS/"
+local libBasePath = basePath.."lib/"
+local cfgPath = "/SCRIPTS/TOOLS/YaapuGCS/cfg/"
 
 local bitmaps = {}
 local blinktime = getTime()
@@ -220,6 +220,7 @@ local page = 1
 
 
 utils.doLibrary = function(filename)
+  print("luaDebug doLibrary",libBasePath..filename..".lua")
   local f = assert(loadScript(libBasePath..filename..".lua"))
   -- recover memory
   collectgarbage()
@@ -228,7 +229,7 @@ utils.doLibrary = function(filename)
 end
 
 -----------------------------
--- clears the loaded table 
+-- clears the loaded table
 -- and recovers memory
 -----------------------------
 utils.clearTable = function(t)
@@ -244,7 +245,7 @@ utils.clearTable = function(t)
   collectgarbage()
   collectgarbage()
   maxmem = 0
-end  
+end
 
 local function getItemByName(items,name)
   for idx=1,#items
@@ -384,13 +385,13 @@ local function drawList(myPage, event)
   end
   --wrap
   if menu.selectedItem > #items then
-    menu.selectedItem = 1 
+    menu.selectedItem = 1
     menu.offset = 0
   elseif menu.selectedItem  < 1 then
     menu.selectedItem = #items
     menu.offset =  math.max(0,#items - 7)
   end
-  
+
   if myPage.listType == nil or myPage.listType == 4 then -- paramters or config menu
   -- draw list
     for m=1+menu.offset,math.min(#items,7+menu.offset) do
@@ -425,19 +426,19 @@ local function processMavliteMessage(msg)
       utils.pushMessage(7,string.format("RX: ID=%d, %s : %f",msg.msgid,param_name,param_value), true)
     end
     local item = getItemByName(globalParams,param_name)
-    
+
     if item == nil then
       if pages[page]  ~= nil then
         item = getItemByName(pages[page].list, param_name)
       end
     end
-    
+
     if item ~= nil then
       -- update value
       if type(item[2]) == "table" then -- COMBO
         -- look value up
         local success = false
-        
+
         for i=1,#item[3]
         do
           if item[3][i] == param_value then
@@ -452,7 +453,7 @@ local function processMavliteMessage(msg)
         -- make all digits visible even if the increment has a lower resolution!
         -- when in panel mode precision is limited to 4 just like MP
         local precision = item.label == nil and 6 or 4
-        
+
         item.fstring = "%.0"..tostring(math.min(precision,math.max(getDecimalCount(item.value),math.max(1,getDecimalCount(item[4]))))).."f %s"
         if item.value < item[2] or item.value > item[3] then
           -- update status
@@ -473,18 +474,18 @@ local function processMavliteMessage(msg)
       utils.pushMessage(7,string.format("RX: ID=%d, CMD=%d, RESULT=%d",msg.msgid, cmd_id, mav_result), true)
     end
     local item = getItemByCommandID( pages[page].list, cmd_id)
-    
+
     if item ~= nil then
       -- update status
       item.result = mav_result
-      item.status = 5      
+      item.status = 5
     end
   end
 end
 
 local function formatMessage(severity,msg)
   local clippedMsg = msg
-  
+
   if #msg > 24 then
     clippedMsg = string.sub(msg,1,24)
     msg = nil
@@ -543,7 +544,7 @@ local function processTelemetry(sp)
     local paramValue = bit32.extract(sp.value,0,24)
     if paramId == 1 then -- frame type
       telemetry.frameType = paramValue
-    end 
+    end
   elseif sp.data_id == 0x5003 then -- BATT
     telemetry.batt1volt = bit32.extract(sp.value,0,9)
   end
@@ -554,7 +555,7 @@ local function processSportData(sportPacket)
 end
 
 local function createMsgParamRequestRead(paramName)
-    
+
     local msg = {
       msgid = 20,
       len = 0,
@@ -563,15 +564,15 @@ local function createMsgParamRequestRead(paramName)
     }
 
     mavLib.msg_set_string(msg,paramName,0)
-    
+
     collectgarbage()
     collectgarbage()
-    
+
     return msg
 end
 
 local function createMsgParamSet(paramName, paramValue)
-    
+
     local msg = {
       msgid = 23,
       len = 0,
@@ -581,15 +582,15 @@ local function createMsgParamSet(paramName, paramValue)
 
     mavLib.msg_set_float(msg, paramValue,0)
     mavLib.msg_set_string(msg, paramName,4)
-    
+
     collectgarbage()
     collectgarbage()
-    
+
     return msg
 end
 
 local function createMsgCommandLong(cmdId,params)
-    
+
     local msg = {
       msgid = 76,
       len = 0,
@@ -604,16 +605,16 @@ local function createMsgCommandLong(cmdId,params)
     do
       mavLib.msg_set_float(msg,params[i],3+(4*(i-1)))
     end
-    
+
   collectgarbage()
   collectgarbage()
-    
+
     return msg
 end
 
 local function initPageItems(myPage)
   local items = myPage.list
-  
+
   for idx=1,#items
   do
     if myPage.listType ~= 3 then
@@ -673,13 +674,13 @@ local function processItemsParamSet(items)
     if items[i].status == 2 then
       if items[i].value ~= nil then
         local value = items[i].value * (items[i].mult == nil and 1 or items[i].mult)
-        
+
         if type(items[i][2]) == "table" then
           value = items[i][3][items[i].value]
         end
         if mavLib.queue_empty() then
           local msg = createMsgParamSet(items[i][1], value)
-          
+
           if mavLib.queue_message(msg) == true then
             items[i].status = 3
             items[i].timer = getTime()
@@ -739,7 +740,7 @@ local function processCommandTimers(items)
   for i=1,#items
   do
     -- check if a refresh is needed
-    if items[i].status == 3 then 
+    if items[i].status == 3 then
       -- check timer
       if now - items[i].timer > 300 then
         items[i].status = 4
@@ -770,22 +771,22 @@ local function background()
   for i=1,30
   do
     local sensor_id, frame_id, data_id, value = sportTelemetryPop()
-    
+
     if sensor_id  ~= nil then
       if last_frame_id ~= frame_id or last_data_id ~= data_id or last_value ~= value then
         last_frame_id = frame_id
         last_data_id = data_id
         last_value = value
-        
+
         sportPacket.frame_id = frame_id
         sportPacket.data_id = data_id
         sportPacket.value = value
-      
+
         if sportPacket.frame_id == 0x10 then
           status.noTelemetryData = 0
           -- no telemetry dialog only shown once
           status.hideNoTelemetry = true
-          
+
           processTelemetry(sportPacket)
         elseif sportPacket.frame_id == 0x32 then
           -- skip mav interleaved packet copies
@@ -800,10 +801,10 @@ local function background()
           end
         end
       end
-    end  
+    end
   end
-  
-  
+
+
   --[[
   if getTime() - sendMavliteTimer > 25 then
     local msg = {
@@ -812,20 +813,20 @@ local function background()
       payload = {},
       checksum = 0
     }
-    
+
     mavLib.msg_set_string(msg,"Q_ENABLE",0)
     local success = mavLib.msg_send(msg,utils)
     utils.pushMessage((success and 7 or 4),"TX: Q_ENABLE:"..(success and "OK" or "KO"))
-    
+
     sendMavliteTimer = getTime()
   end
   --]]
-  
+
   if getTime() - refreshTimer > 25 then
     -- process global parameters
     processItemTimers(globalParams)
     processItemsParamGet(globalParams)
-    
+
     -- process vehicle parameters
     if pages[page] ~= nil then
       if pages[page].listType == 3 then
@@ -840,12 +841,12 @@ local function background()
     end
     refreshTimer = getTime()
   end
-  
+
   for i=1,5
   do
     mavLib.process_sport_tx_queue(utils, conf)
   end
-  
+
   collectgarbage()
   collectgarbage()
 end
@@ -912,7 +913,6 @@ end
 
 local function getModelFilename()
   local info = model.getInfo()
-  --return "/MODELS/yaapu/" .. string.lower(string.gsub(info.name, "[%c%p%s%z]", "")..".cfg")
   return string.lower(string.gsub(info.name, "[%c%p%s%z]", ""))
 end
 
@@ -929,11 +929,11 @@ local function initPage(pageNames, pages, idx)
   if pages[idx] ~= nil then
     return
   end
-  
+
   if pageNames[idx] == nil then
     return
   end
-  
+
   if idx > 0 then
     local p = loadScript(pageNames[idx])
     if p == nil then
@@ -942,15 +942,15 @@ local function initPage(pageNames, pages, idx)
       pages[idx] = p()
     end
   end
-  
+
   if pages[idx] == nil then
     return
   end
-  
+
   if pages[idx].list and pages[idx].listType ~= 4 then
     initPageItems(pages[idx])
   end
-  
+
   collectgarbage()
   collectgarbage()
   maxmem = 0
@@ -1019,7 +1019,7 @@ end
 local function drawScreen(event)
   if showMessageScreen then
     drawLib.drawMessageScreen(status)
-    
+
     if event == EVT_EXIT_BREAK or event == 516 then
       showMessageScreen = false
     end
@@ -1028,7 +1028,7 @@ local function drawScreen(event)
     if telemetryEnabled() then
       -- prevent page switch if frametype unknown
       if (
-          event == 513 
+          event == 513
           or event == EVT_PAGE_BREAK
           or event == 37
           ) and telemetry.frameType ~= -1 then
@@ -1036,17 +1036,17 @@ local function drawScreen(event)
         pages[page] = nil
         collectgarbage()
         collectgarbage()
-        
+
         page = page + 1
         -- on page switch reset item counter
         mavLib.clear_sport_tx_queue()
         idx = 1
-        
+
         if page > math.max(1, #pageFiles) then
           page = 1
         end
       end
-      
+
       if pages[page] ~= nil then
         drawList(pages[page], event)
         drawLib.drawBottomBar(status)
@@ -1087,7 +1087,7 @@ local function run(event)
   searchAllPages(pageFiles)
   clearScreen()
   drawScreen(event)
-  drawNoTelemetry()  
+  drawNoTelemetry()
   drawStats()
 
   return 0
@@ -1095,10 +1095,10 @@ end
 
 local function init()
   -- load mavlite library
-  mavLib = utils.doLibrary("mavlite")  
+  mavLib = utils.doLibrary("mavlite")
   drawLib = utils.doLibrary("taranis")
   -- ok done
-  utils.pushMessage(7,"Yaapu LuaGCS ".."1.0.3")
+  utils.pushMessage(7,"Yaapu LuaGCS ".."1.2.0 dev ("..'de4a4dc'..")")
   -- recover memory
   collectgarbage()
   collectgarbage()
